@@ -49,21 +49,21 @@ def plot_fill_between(df, output):
 # 4. 메인함수
 ##############################################################################
 def main():
-    xlsx = pd.ExcelFile(STEP_1_2)
-    df_bok = xlsx.parse("bok")
-    plot_fill_between(df_bok, "bok")
+    with pd.ExcelFile(STEP_1_2) as xlsx:
+        df_base_mo = xlsx.parse("base_mo")
+        plot_fill_between(df_base_mo, "base_mo")
 
-    df_tb = xlsx.parse("tb")
-    plot_fill_between(df_tb, "tb")
+        df_tb = xlsx.parse("tb")
+        plot_fill_between(df_tb, "tb")
 
-    df_cb = xlsx.parse("cb")
-    plot_fill_between(df_cb, "cb")
+        df_cb = xlsx.parse("cb")
+        plot_fill_between(df_cb, "cb")
 
-    df_kospi = xlsx.parse("kospi")
-    plot_fill_between(df_kospi, "kospi")
+        df_kospi = xlsx.parse("kospi")
+        plot_fill_between(df_kospi, "kospi")
 
-    df_ex = xlsx.parse("ex")
-    plot_fill_between(df_ex, "ex")
+        df_ex = xlsx.parse("ex")
+        plot_fill_between(df_ex, "ex")
 
 
 ##############################################################################

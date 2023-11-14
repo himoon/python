@@ -1,15 +1,22 @@
 ##############################################################################
 # 1. 필요모듈
 ##############################################################################
+import json
+import pandas as pd
 from datetime import datetime
 
-import pandas as pd
 from docx import Document
-from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.shared import Inches, Cm, Pt, Mm
+from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.text import WD_LINE_SPACING
-from docx.oxml.ns import qn
-from docx.shared import Mm, Pt
-from docx.shared import RGBColor
+from docx.enum.style import WD_STYLE
+from docx.oxml.ns import qn, nsdecls
+from docx.enum.table import WD_TABLE_ALIGNMENT
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 
 
 ##############################################################################
@@ -18,7 +25,6 @@ from docx.shared import RGBColor
 STEP_1_2 = "output/step_1_2.xlsx"
 STEP_1_3 = "output/{}"
 STEP_3_1 = "output/step_3_1.docx"
-GRAPH_WIDTH, GRAPH_HEIGHT = Mm(30), Mm(8)
 
 
 ##############################################################################
@@ -34,7 +40,7 @@ def set_margin(document, margin=12.7):
         section.page_height = Mm(297)
 
 
-def apply_font_style(style, size=None, bold=False, font_name=None, rgb=None):
+def apply_font_style(style, size=None, bold=False, font_name=None):
     this_font = style.font
     if size:
         this_font.size = size
@@ -43,8 +49,6 @@ def apply_font_style(style, size=None, bold=False, font_name=None, rgb=None):
     if font_name:
         this_font.name = font_name
         style._element.rPr.rFonts.set(qn("w:eastAsia"), font_name)
-    if rgb:
-        this_font.color.rgb = RGBColor(*rgb)
     return style
 
 
@@ -66,12 +70,8 @@ def get_index_values(df_raw):
     value = s_value.iloc[-1]
     diff = s_diff.iloc[-1]
     diff_rate = s_pct_change.iloc[-1]
-    rgb = (
-        (0xE5, 0x00, 0x00) if diff > 0 else (0x03, 0x43, 0xDF) if diff < 0 else None
-    )  # https://xkcd.com/color/rgb/
     dt = s_value.index[-1].to_pydatetime()
-
-    return value, diff, diff_rate, rgb, dt
+    return value, diff, diff_rate, dt
 
 
 def get_arrow(diff):
@@ -79,7 +79,7 @@ def get_arrow(diff):
 
 
 def add_break_line(document, pt):
-    document.add_paragraph().add_run(" ").font.size = Pt(pt)
+    document.add_paragraph().style.font.size = Pt(pt)
 
 
 ##############################################################################
@@ -103,7 +103,7 @@ def main():
     p_head_1 = document.add_paragraph()
     apply_font_style(p_head_1.add_run("1. 주요 경제지표"), Pt(14), True)
 
-    add_break_line(document, 10)
+    add_break_line(document, 6)
     document.save(STEP_3_1)
 
     ##########################################################################
@@ -120,31 +120,25 @@ def main():
 
     ##########################################################################
     ##########################################################################
+    GRAPH_WIDTH, GRAPH_HEIGHT = Mm(30), Mm(8)
     table = document.add_table(rows=1, cols=5)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.allow_autofit = False
 
-    CELL_WIDTH = Mm(35.5)
     row_1_1 = table.rows[0]
-    for td in row_1_1.cells:
-        td.width = CELL_WIDTH
-
     cell_a, cell_b, cell_c, cell_d, cell_e = row_1_1.cells
 
     ##########################################################################
     # 기준금리
     ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_base)
+    value, diff, diff_rate, dt = get_index_values(df_base)
     change = f"{get_arrow(diff)}{diff:,.2f}  {diff_rate:+,.2%}"
 
     p1 = cell_a.paragraphs[0]
     p2, p3, p4, p5 = [cell_a.add_paragraph() for _ in range(4)]
-    apply_font_style(p1.add_run("기준금리"), Pt(12), True)
-    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
+    apply_font_style(p1.add_run("기준금리"), Pt(14), True)
+    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(20), True)
+    apply_font_style(p3.add_run(change), Pt(10), True)  # diff, diff_rate
+    apply_font_style(p5.add_run(dt.strftime("%Y.%m.")), Pt(8), True)
     p4.add_run().add_picture(
         f"output/grah_base_mo.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
@@ -153,19 +147,17 @@ def main():
     ##########################################################################
     # 국고채
     ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_tb)
+    value, diff, diff_rate, dt = get_index_values(df_tb)
     change = f"{get_arrow(diff)}{diff:,.3f}  {diff_rate:+,.2%}"
 
     p1 = cell_b.paragraphs[0]
     p2, p3, p4, p5 = [cell_b.add_paragraph() for _ in range(4)]
 
-    apply_font_style(p1.add_run("국고채"), Pt(12), True)
+    apply_font_style(p1.add_run("국고채"), Pt(14), True)
     apply_font_style(p1.add_run("(3Y)"), Pt(8), True)
-    apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
+    apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(20), True)
+    apply_font_style(p3.add_run(change), Pt(10), True)
+    apply_font_style(p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True)
     p4.add_run().add_picture(
         f"output/grah_tb.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
@@ -174,19 +166,17 @@ def main():
     ##########################################################################
     # 회사채
     ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_cb)
+    value, diff, diff_rate, dt = get_index_values(df_cb)
     change = f"{get_arrow(diff)}{diff:,.3f}  {diff_rate:+,.2%}"
 
     p1 = cell_c.paragraphs[0]
     p2, p3, p4, p5 = [cell_c.add_paragraph() for _ in range(4)]
 
-    apply_font_style(p1.add_run("회사채"), Pt(12), True)
+    apply_font_style(p1.add_run("회사채"), Pt(14), True)
     apply_font_style(p1.add_run("(3Y,AA-)"), Pt(8), True)
-    apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
+    apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(20), True)
+    apply_font_style(p3.add_run(change), Pt(10), True)
+    apply_font_style(p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True)
     p4.add_run().add_picture(
         f"output/grah_cb.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
@@ -195,18 +185,16 @@ def main():
     ##########################################################################
     # KOSPI
     ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_kospi)
+    value, diff, diff_rate, dt = get_index_values(df_kospi)
     change = f"{get_arrow(diff)}{diff:,.2f}  {diff_rate:+,.2%}"
 
     p1 = cell_d.paragraphs[0]
     p2, p3, p4, p5 = [cell_d.add_paragraph() for _ in range(4)]
 
-    apply_font_style(p1.add_run("KOSPI"), Pt(12), True)
-    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
+    apply_font_style(p1.add_run("KOSPI"), Pt(14), True)
+    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(20), True)
+    apply_font_style(p3.add_run(change), Pt(10), True)
+    apply_font_style(p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True)
     p4.add_run().add_picture(
         f"output/grah_kospi.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
@@ -215,21 +203,45 @@ def main():
     ##########################################################################
     # 원달러
     ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_ex)
+    value, diff, diff_rate, dt = get_index_values(df_ex)
     change = f"{get_arrow(diff)}{diff:,.2f}  {diff_rate:+,.2%}"
 
     p1 = cell_e.paragraphs[0]
     p2, p3, p4, p5 = [cell_e.add_paragraph() for _ in range(4)]
 
-    apply_font_style(p1.add_run("원/달러환율"), Pt(12), True)
-    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
+    apply_font_style(p1.add_run("원/달러환율"), Pt(14), True)
+    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(20), True)
+    apply_font_style(p3.add_run(change), Pt(10), True)
+    apply_font_style(p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True)
     p4.add_run().add_picture(
         f"output/grah_ex.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
+    document.save(STEP_3_1)
+
+    ##########################################################################
+    ##########################################################################
+    for _ in range(4):
+        cell_c.add_paragraph()
+
+    p1, p2, p3, p4, p5 = cell_c.paragraphs
+
+    s_value = df_cb["DATA_VALUE"]
+    s_diff = s_value.diff()
+    s_pct_change = s_value.pct_change()
+    value = s_value.iloc[-1]
+    arrow = "" if not value else "▼" if value < 0 else "▲"
+    change = f"{arrow}{s_diff.iloc[-1]:,.3f}  {s_pct_change.iloc[-1]:+,.2%}"
+    dt = s_value.index[-1].strftime("%m.%d. 종가")
+
+    p1.add_run("회사채(3Y,AA-)").bold = True
+    p2.add_run(f"{s_value.iloc[-1]:,.3f}").bold = True
+    p3.add_run(change).bold = True  # diff, pct_change
+    p4.add_run().add_picture(f"output/grah_cb.png", width=GRAPH_WIDTH, height=Mm(8))
+    p5.add_run(dt).bold = True
+
+    p1.runs[-1].font.size = Pt(14)
+    p2.runs[-1].font.size = Pt(20)
+    p5.runs[-1].font.size = Pt(8)
     document.save(STEP_3_1)
 
 
@@ -237,4 +249,4 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
-    main()
+    pass

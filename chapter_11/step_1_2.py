@@ -29,15 +29,17 @@ def main():
     with open(STEP_1_1, "r") as fp:
         jsoned = json.load(fp)
 
-    bok_base = jsoned.get("기준금리", [])
-    df_bok = get_filtered(bok_base, "%Y%m")
+    base_mo = jsoned.get("기준금리M", [])
+    df_base_mo = get_filtered(base_mo, "%Y%m")
+    df_base = get_filtered(jsoned.get("기준금리", []), "%Y%m%d")
     df_tb = get_filtered(jsoned.get("국고채", []), "%Y%m%d")
     df_cb = get_filtered(jsoned.get("회사채", []), "%Y%m%d")
     df_kospi = get_filtered(jsoned.get("KOSPI", []), "%Y%m%d")
     df_ex = get_filtered(jsoned.get("원달러환율", []), "%Y%m%d")
 
     with pd.ExcelWriter(STEP_2_1) as writer:
-        df_bok.to_excel(writer, sheet_name="bok", index=True)
+        df_base_mo.to_excel(writer, sheet_name="base_mo", index=True)
+        df_base.to_excel(writer, sheet_name="base", index=True)
         df_tb.to_excel(writer, sheet_name="tb", index=True)
         df_cb.to_excel(writer, sheet_name="cb", index=True)
         df_kospi.to_excel(writer, sheet_name="kospi", index=True)

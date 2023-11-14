@@ -22,15 +22,15 @@ STEP_1_1 = "output/step_1_1.json"
 # 3. 기본함수
 ##############################################################################
 def get_date_start_end(intv="D", rows=100):
-    dt_base = datetime.now()
+    dt_base = datetime.now() - relativedelta(days=1)
     if intv == "D":
-        dt_start = dt_base - relativedelta(days=rows - 1)
+        dt_start = dt_base - relativedelta(days=rows)
         return dt_start.strftime("%Y%m%d"), dt_base.strftime("%Y%m%d")
     elif intv == "M":
-        dt_start = dt_base - relativedelta(months=rows - 1)
+        dt_start = dt_base - relativedelta(months=rows)
         return dt_start.strftime("%Y%m"), dt_base.strftime("%Y%m")
     elif intv == "A":
-        dt_start = dt_base - relativedelta(years=rows - 1)
+        dt_start = dt_base - relativedelta(years=rows)
         return dt_start.strftime("%Y"), dt_base.strftime("%Y")
     raise ValueError(f"invalid interval, got {intv!r}")
 
@@ -62,7 +62,8 @@ def get_query_string(args):
 ##############################################################################
 def main():
     my_request = [
-        ("기준금리", "722Y001", "0101000", "M", 100),
+        ("기준금리M", "722Y001", "0101000", "M", 100),
+        ("기준금리", "722Y001", "0101000", "D", 100),
         ("국고채", "817Y002", "010200000", "D", 100),
         ("회사채", "817Y002", "010300000", "D", 100),
         ("KOSPI", "802Y001", "0001000", "D", 100),
