@@ -1,0 +1,7 @@
+openpyxl  # xlsx support
+python-dateutil  # relativedelta
+python-docx  # docx support
+requests
+seaborn
+tqdm  # progress bar
+xlrd  # xls support
