@@ -1,20 +1,13 @@
 ##############################################################################
 # 1. 필요모듈
 ##############################################################################
-from datetime import datetime
-
 import pandas as pd
 from docx import Document
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-
-from docx.enum.text import WD_LINE_SPACING, WD_ALIGN_PARAGRAPH
-from docx.oxml.ns import qn, nsdecls
+from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Mm, Pt
-from docx.oxml import parse_xml
-
-from step_3_1 import add_break_line, apply_font_style
 from step_2_2 import STEP_2_2
-
+from step_3_1 import apply_font_style
 
 ##############################################################################
 # 2. 환경설정
@@ -23,6 +16,7 @@ STEP_1_2 = "output/step_1_2.xlsx"
 STEP_1_3 = "output/{}"
 STEP_3_1 = "output/step_3_1.docx"
 STEP_3_2 = "output/step_3_2.docx"
+NUM_OF_ROWS = 13
 
 
 ##############################################################################
@@ -66,13 +60,9 @@ def main():
         td.paragraphs[-1].runs[-1].font.bold = True
         td.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-        # color = "7BC8F6"  # lightblue(#7bc8f6) at https://xkcd.com/color/rgb/
-        # shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color}"/>')
-        # td._tc.get_or_add_tcPr().append(shading)
-
     document.save(STEP_3_2)
 
-    for _, s_row in df_filtered.head(10).iterrows():
+    for _, s_row in df_filtered.head(NUM_OF_ROWS).iterrows():
         type(s_row)
         tr = table.add_row()
         for idx in range(len(tr.cells)):

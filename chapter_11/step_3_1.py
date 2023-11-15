@@ -8,9 +8,7 @@ from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_LINE_SPACING
 from docx.oxml.ns import qn
-from docx.shared import Mm, Pt
-from docx.shared import RGBColor
-
+from docx.shared import Mm, Pt, RGBColor
 
 ##############################################################################
 # 2. 환경설정
@@ -95,7 +93,8 @@ def main():
     p_title = document.add_heading("정기예금 금리 현황표", level=0)
     apply_font_style(p_title.runs[-1], Pt(20), True, "나눔고딕")
 
-    p_title.add_run(datetime.now().strftime(f"(%Y.%m.%d.)"))
+    now_format = datetime.now().isoformat(sep=" ", timespec="minutes")
+    p_title.add_run(f" ({now_format})")
     apply_font_style(p_title.runs[-1], Pt(14), True, "나눔고딕")
 
     add_break_line(document, 6)
@@ -143,11 +142,13 @@ def main():
     apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
     apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
     apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
+        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
         f"output/grah_base_mo.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
+    p4.paragraph_format.space_after = Mm(1)
+    p4.paragraph_format.space_before = Mm(1)
     document.save(STEP_3_1)
 
     ##########################################################################
@@ -164,11 +165,13 @@ def main():
     apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(14), True)
     apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
     apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
+        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
         f"output/grah_tb.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
+    p4.paragraph_format.space_after = Mm(1)
+    p4.paragraph_format.space_before = Mm(1)
     document.save(STEP_3_1)
 
     ##########################################################################
@@ -185,11 +188,13 @@ def main():
     apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(14), True)
     apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
     apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
+        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
         f"output/grah_cb.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
+    p4.paragraph_format.space_after = Mm(1)
+    p4.paragraph_format.space_before = Mm(1)
     document.save(STEP_3_1)
 
     ##########################################################################
@@ -205,11 +210,13 @@ def main():
     apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
     apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
     apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
+        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
         f"output/grah_kospi.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
+    p4.paragraph_format.space_after = Mm(1)
+    p4.paragraph_format.space_before = Mm(1)
     document.save(STEP_3_1)
 
     ##########################################################################
@@ -225,11 +232,13 @@ def main():
     apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
     apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
     apply_font_style(
-        p5.add_run(dt.strftime("%Y.%m.%d.")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
+        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
         f"output/grah_ex.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
     )
+    p4.paragraph_format.space_after = Mm(1)
+    p4.paragraph_format.space_before = Mm(1)
     document.save(STEP_3_1)
 
 
