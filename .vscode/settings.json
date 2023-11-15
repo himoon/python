@@ -1,7 +1,12 @@
 {
-  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
+  },
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    ".venv": true,
+    ".vscode": true,
+    "**/__pycache__": true
   },
   "jupyter.interactiveWindow.textEditor.executeSelection": true
 }
