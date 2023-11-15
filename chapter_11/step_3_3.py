@@ -5,17 +5,15 @@ from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_LINE_SPACING
 from docx.shared import Mm, Pt
-from step_3_1 import add_break_line, apply_font_style
-from step_3_2 import STEP_3_2
+
+import step_0
+import step_3_1
+import step_3_2
 
 ##############################################################################
 # 2. 환경설정
 ##############################################################################
-STEP_1_2 = "output/step_1_2.xlsx"
-STEP_1_3 = "output/{}"
-STEP_3_1 = "output/step_3_1.docx"
-STEP_3_2 = "output/step_3_2.docx"
-STEP_3_3 = "output/step_3_3.docx"
+STEP_3_3 = step_0.OUTPUT_FOLDER / "step_3_3.docx"
 
 
 ##############################################################################
@@ -23,7 +21,7 @@ STEP_3_3 = "output/step_3_3.docx"
 ##############################################################################
 def init_style(document):
     style_normal = document.styles["List Bullet"]
-    apply_font_style(style_normal, size=Pt(8), bold=False, font_name="나눔고딕")
+    step_3_1.apply_font_style(style_normal, size=Pt(8), bold=False, font_name="나눔고딕")
 
     p_format = style_normal.paragraph_format
     p_format.space_before = 0
@@ -35,9 +33,9 @@ def init_style(document):
 # 4. 메인함수
 ##############################################################################
 def main():
-    document = Document(STEP_3_2)
+    document = Document(step_3_2.STEP_3_2)
     init_style(document)
-    add_break_line(document, 10)
+    step_3_1.add_break_line(document, 10)
 
     table = document.add_table(rows=1, cols=1)
     table.style = "Light Shading Accent 6"
@@ -75,4 +73,5 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
+    step_0.init_output_folder()
     main()

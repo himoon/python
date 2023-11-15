@@ -10,12 +10,13 @@ from docx.enum.text import WD_LINE_SPACING
 from docx.oxml.ns import qn
 from docx.shared import Mm, Pt, RGBColor
 
+import step_0
+import step_1_2
+
 ##############################################################################
 # 2. 환경설정
 ##############################################################################
-STEP_1_2 = "output/step_1_2.xlsx"
-STEP_1_3 = "output/{}"
-STEP_3_1 = "output/step_3_1.docx"
+STEP_3_1 = step_0.OUTPUT_FOLDER / "step_3_1.docx"
 GRAPH_WIDTH, GRAPH_HEIGHT = Mm(30), Mm(8)
 
 
@@ -107,7 +108,7 @@ def main():
 
     ##########################################################################
     ##########################################################################
-    with pd.ExcelFile(STEP_1_2) as xlsx:
+    with pd.ExcelFile(step_1_2.STEP_1_2) as xlsx:
         xlsx.sheet_names
         df_base: pd.DataFrame = pd.read_excel(xlsx, sheet_name="base", index_col="TIME")
         df_tb: pd.DataFrame = pd.read_excel(xlsx, sheet_name="tb", index_col="TIME")
@@ -145,7 +146,9 @@ def main():
         p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
-        f"output/grah_base_mo.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
+        (step_0.OUTPUT_FOLDER / "step_1_3_base_mo.png").as_posix(),
+        width=GRAPH_WIDTH,
+        height=GRAPH_HEIGHT,
     )
     p4.paragraph_format.space_after = Mm(1)
     p4.paragraph_format.space_before = Mm(1)
@@ -168,7 +171,9 @@ def main():
         p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
-        f"output/grah_tb.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
+        (step_0.OUTPUT_FOLDER / "step_1_3_tb.png").as_posix(),
+        width=GRAPH_WIDTH,
+        height=GRAPH_HEIGHT,
     )
     p4.paragraph_format.space_after = Mm(1)
     p4.paragraph_format.space_before = Mm(1)
@@ -191,7 +196,9 @@ def main():
         p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
-        f"output/grah_cb.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
+        (step_0.OUTPUT_FOLDER / "step_1_3_cb.png").as_posix(),
+        width=GRAPH_WIDTH,
+        height=GRAPH_HEIGHT,
     )
     p4.paragraph_format.space_after = Mm(1)
     p4.paragraph_format.space_before = Mm(1)
@@ -213,7 +220,9 @@ def main():
         p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
-        f"output/grah_kospi.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
+        (step_0.OUTPUT_FOLDER / "step_1_3_kospi.png").as_posix(),
+        width=GRAPH_WIDTH,
+        height=GRAPH_HEIGHT,
     )
     p4.paragraph_format.space_after = Mm(1)
     p4.paragraph_format.space_before = Mm(1)
@@ -235,7 +244,9 @@ def main():
         p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
     )
     p4.add_run().add_picture(
-        f"output/grah_ex.png", width=GRAPH_WIDTH, height=GRAPH_HEIGHT
+        (step_0.OUTPUT_FOLDER / "step_1_3_ex.png").as_posix(),
+        width=GRAPH_WIDTH,
+        height=GRAPH_HEIGHT,
     )
     p4.paragraph_format.space_after = Mm(1)
     p4.paragraph_format.space_before = Mm(1)
@@ -246,4 +257,5 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
+    step_0.init_output_folder()
     main()

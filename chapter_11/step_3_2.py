@@ -6,16 +6,15 @@ from docx import Document
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Mm, Pt
-from step_2_2 import STEP_2_2
-from step_3_1 import apply_font_style
+
+import step_0
+import step_2_2
+import step_3_1
 
 ##############################################################################
 # 2. 환경설정
 ##############################################################################
-STEP_1_2 = "output/step_1_2.xlsx"
-STEP_1_3 = "output/{}"
-STEP_3_1 = "output/step_3_1.docx"
-STEP_3_2 = "output/step_3_2.docx"
+STEP_3_2 = step_0.OUTPUT_FOLDER / "step_3_2.docx"
 NUM_OF_ROWS = 13
 
 
@@ -29,16 +28,16 @@ pass
 # 4. 메인함수
 ##############################################################################
 def main():
-    with pd.ExcelFile(STEP_2_2) as xlsx:
+    with pd.ExcelFile(step_2_2.STEP_2_2) as xlsx:
         xlsx.sheet_names
         df_raw: pd.DataFrame = pd.read_excel(xlsx, sheet_name="deposit")
         df_filtered = df_raw.filter(
             ["금융회사", "상품명", "가입제한여부", "세전이자율", "세후이자율", "최고우대금리"]
         )
 
-    document = Document(STEP_3_1)
+    document = Document(step_3_1.STEP_3_1)
     p_head = document.add_paragraph()
-    apply_font_style(p_head.add_run("2. 주요 은행 정기예금 금리"), Pt(14), True)
+    step_3_1.apply_font_style(p_head.add_run("2. 주요 은행 정기예금 금리"), Pt(14), True)
     p_head.paragraph_format.space_before = Mm(10)
     p_head.paragraph_format.space_after = Mm(2)
     document.save(STEP_3_2)
@@ -82,4 +81,5 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
+    step_0.init_output_folder()
     main()

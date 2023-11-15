@@ -4,24 +4,18 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+import step_0
+import step_1_2
 
 ##############################################################################
 # 2. 환경설정
 ##############################################################################
-STEP_1_2 = "output/step_1_2.xlsx"
-STEP_1_3 = "output/{}"
 ROWS = 30
 
 
 ##############################################################################
 # 3. 기본함수
 ##############################################################################
-def parse_xlsx(sheet_name) -> pd.DataFrame:
-    df_raw = pd.read_excel(STEP_1_2, sheet_name=sheet_name)
-    df_raw.set_index("TIME", inplace=True)
-    return df_raw
-
-
 def plot_fill_between(df, output):
     ser_value = df["DATA_VALUE"]
     is_rise = ser_value.iloc[0] < ser_value.iloc[-1]
@@ -42,14 +36,14 @@ def plot_fill_between(df, output):
     )
     ax.margins(0)
     ax.set_axis_off()
-    fig.savefig(STEP_1_3.format(f"grah_{output}.png"))
+    fig.savefig(step_0.OUTPUT_FOLDER / f"step_1_3_{output}.png")
 
 
 ##############################################################################
 # 4. 메인함수
 ##############################################################################
 def main():
-    with pd.ExcelFile(STEP_1_2) as xlsx:
+    with pd.ExcelFile(step_1_2.STEP_1_2) as xlsx:
         df_base_mo = xlsx.parse("base_mo")
         plot_fill_between(df_base_mo, "base_mo")
 
@@ -70,4 +64,5 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
+    step_0.init_output_folder()
     main()

@@ -2,14 +2,16 @@
 # 1. 필요모듈
 ##############################################################################
 import json
+
 import pandas as pd
 
+import step_0
+import step_1_1
 
 ##############################################################################
 # 2. 환경설정
 ##############################################################################
-STEP_1_1 = "output/step_1_1.json"
-STEP_2_1 = "output/step_1_2.xlsx"
+STEP_1_2 = step_0.OUTPUT_FOLDER / "step_1_2.xlsx"
 
 
 ##############################################################################
@@ -26,7 +28,7 @@ def get_filtered(raw, format):
 # 4. 메인함수
 ##############################################################################
 def main():
-    with open(STEP_1_1, "r") as fp:
+    with open(step_1_1.STEP_1_1, "r") as fp:
         jsoned = json.load(fp)
 
     base_mo = jsoned.get("기준금리M", [])
@@ -37,7 +39,7 @@ def main():
     df_kospi = get_filtered(jsoned.get("KOSPI", []), "%Y%m%d")
     df_ex = get_filtered(jsoned.get("원달러환율", []), "%Y%m%d")
 
-    with pd.ExcelWriter(STEP_2_1) as writer:
+    with pd.ExcelWriter(STEP_1_2) as writer:
         df_base_mo.to_excel(writer, sheet_name="base_mo", index=True)
         df_base.to_excel(writer, sheet_name="base", index=True)
         df_tb.to_excel(writer, sheet_name="tb", index=True)
@@ -50,4 +52,5 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
+    step_0.init_output_folder()
     main()

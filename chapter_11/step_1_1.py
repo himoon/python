@@ -9,13 +9,14 @@ import requests
 from dateutil.relativedelta import relativedelta
 from tqdm import tqdm
 
+import step_0
 
 ##############################################################################
 # 2. 환경설정
 ##############################################################################
 API_KEY = "9NPPLWUVZGMSFQP0CL23"
 API_URL = "http://ecos.bok.or.kr/api/"
-STEP_1_1 = "output/step_1_1.json"
+STEP_1_1 = step_0.OUTPUT_FOLDER / "step_1_1.json"
 
 
 ##############################################################################
@@ -90,4 +91,5 @@ def main():
 # 5. 실행
 ##############################################################################
 if __name__ == "__main__":
+    step_0.init_output_folder()
     main()
