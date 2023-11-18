@@ -1,6 +1,11 @@
 from datetime import datetime
+from pprint import pprint
 
+import requests
 from dateutil.relativedelta import relativedelta
+
+API_KEY = "sample"  # 여러분의 API 인증키로 바꿔주세요.
+API_URL = f"http://ecos.bok.or.kr/api/"
 
 
 def get_date_start_end(intv="D", rows=100):
@@ -14,8 +19,17 @@ def get_date_start_end(intv="D", rows=100):
         return dt_start.strftime("%Y%m"), dt_end.strftime("%Y%m")
 
 
-print(get_date_start_end(intv="D", rows=1))
-print(get_date_start_end(intv="D", rows=100))
+intv = "M"
+rows = 2
+start, end = get_date_start_end(intv=intv, rows=rows)
 
-print(get_date_start_end(intv="M", rows=1))
-print(get_date_start_end(intv="M", rows=100))
+code0 = "722Y001"
+code1 = "0101000"
+service = f"StatisticSearch/{API_KEY}/json/kr/"
+params = f"1/{rows}/{code0}/{intv}/{start}/{end}/{code1}"
+req_url = API_URL + service + params
+print(req_url)
+
+resp = requests.get(req_url)
+parsed = resp.json()
+pprint(parsed)
