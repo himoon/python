@@ -17,10 +17,11 @@ STEP_1_2 = step_0.OUTPUT_FOLDER / "step_1_2.xlsx"
 #######################################
 # 3. 기본함수
 #######################################
-def get_filtered(raw, format):
-    df_raw = pd.DataFrame(raw, dtype=str)
+def get_filtered(raw_data, format="%Y%m%d"):
+    df_raw = pd.DataFrame(raw_data, dtype="str")
     df_raw["DATA_VALUE"] = df_raw["DATA_VALUE"].astype("float")
-    df_raw.index = pd.to_datetime(df_raw["TIME"], format=format)
+    df_raw["TIME"] = pd.to_datetime(df_raw["TIME"], format=format)
+    df_raw.index = df_raw["TIME"]
     return df_raw.filter(["ITEM_NAME1", "UNIT_NAME", "DATA_VALUE"])
 
 
@@ -29,23 +30,17 @@ def get_filtered(raw, format):
 #######################################
 def main():
     with open(step_1_1.STEP_1_1, "r") as fp:
-        jsoned = json.load(fp)
+        parsed = json.load(fp)
 
-    base_mo = jsoned.get("기준금리M", [])
-    df_base_mo = get_filtered(base_mo, "%Y%m")
-    df_base = get_filtered(jsoned.get("기준금리", []), "%Y%m%d")
-    df_tb = get_filtered(jsoned.get("국고채", []), "%Y%m%d")
-    df_cb = get_filtered(jsoned.get("회사채", []), "%Y%m%d")
-    df_kospi = get_filtered(jsoned.get("KOSPI", []), "%Y%m%d")
-    df_ex = get_filtered(jsoned.get("원달러환율", []), "%Y%m%d")
+    keys = parsed.keys()
+    print(f"전처리 대상 데이터: {keys}")
 
     with pd.ExcelWriter(STEP_1_2) as writer:
-        df_base_mo.to_excel(writer, sheet_name="base_mo", index=True)
-        df_base.to_excel(writer, sheet_name="base", index=True)
-        df_tb.to_excel(writer, sheet_name="tb", index=True)
-        df_cb.to_excel(writer, sheet_name="cb", index=True)
-        df_kospi.to_excel(writer, sheet_name="kospi", index=True)
-        df_ex.to_excel(writer, sheet_name="ex", index=True)
+        for key in keys:
+            raw_data = parsed[key]
+            format = "%Y%m" if "M" in key else "%Y%m%d"
+            df_filtered = get_filtered(raw_data, format=format)
+            df_filtered.to_excel(writer, sheet_name=key, index=True)
 
 
 #######################################
