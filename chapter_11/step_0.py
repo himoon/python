@@ -14,6 +14,7 @@ OUTPUT_FOLDER = Path(__file__).parent / "output"
 #######################################
 def init_output_folder():
     if not OUTPUT_FOLDER.is_dir():
+        print(f"'{OUTPUT_FOLDER}' 폴더를 생성합니다.")
         OUTPUT_FOLDER.mkdir()
 
 
@@ -35,4 +36,5 @@ pass
 #######################################
 # 5. 실행
 #######################################
-pass
+if __name__ == "__main__":
+    init_output_folder()
