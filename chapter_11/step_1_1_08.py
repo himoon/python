@@ -12,7 +12,7 @@ from dateutil.relativedelta import relativedelta
 # 2. 환경설정
 #######################################
 API_KEY = "9NPPLWUVZGMSFQP0CL23"  # 여러분의 API 인증키로 바꿔주세요.
-API_URL = f"http://ecos.bok.or.kr/api/"
+API_URL = "http://ecos.bok.or.kr/api/"
 
 
 #######################################

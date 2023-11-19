@@ -6,7 +6,7 @@ import requests
 from dateutil.relativedelta import relativedelta
 
 API_KEY = "sample"  # 여러분의 API 인증키로 바꿔주세요.
-API_URL = f"http://ecos.bok.or.kr/api/"
+API_URL = "http://ecos.bok.or.kr/api/"
 
 
 def get_date_start_end(intv="D", rows=100):
