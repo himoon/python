@@ -31,12 +31,12 @@ def main():
             df_raw = xlsx.parse(key, index_col="TIME")
             df_raw = df_raw.tail(ROWS)
 
-            df_raw["DATA_MAX"] = df_raw["DATA_VALUE"].max() * 1.02
-            df_raw["DATA_MIN"] = df_raw["DATA_VALUE"].min() * 0.98
+            df_raw["DATA_MAX"] = df_raw["DATA_VALUE"].max()
+            df_raw["DATA_MIN"] = df_raw["DATA_VALUE"].min()
 
             y_value = df_raw["DATA_VALUE"]
-            y_max = df_raw["DATA_MAX"]
-            y_min = df_raw["DATA_MIN"]
+            y_max = df_raw["DATA_MAX"] * 1.02
+            y_min = df_raw["DATA_MIN"] * 0.98
             x_index = df_raw.index
 
             change = y_value.iloc[-1] - y_value.iloc[0]
