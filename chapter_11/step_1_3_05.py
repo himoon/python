@@ -31,8 +31,8 @@ def main():
             df_raw = xlsx.parse(key, index_col="TIME")
             df_raw = df_raw.tail(ROWS)
 
-            df_raw["DATA_MAX"] = df_raw["DATA_VALUE"].max() * 1.02
-            df_raw["DATA_MIN"] = df_raw["DATA_VALUE"].min() * 0.98
+            df_raw["DATA_MAX"] = df_raw["DATA_VALUE"].max()
+            df_raw["DATA_MIN"] = df_raw["DATA_VALUE"].min()
 
             y_value = df_raw["DATA_VALUE"]
             y_max = df_raw["DATA_MAX"]
@@ -52,7 +52,7 @@ def main():
                 axes.fill_between(y1=y_min, y2=y_max, **params)
 
             axes.set_xlim(x_index.min(), x_index.max())
-            axes.set_ylim(y_min.iloc[0], y_max.iloc[0])
+            axes.set_ylim(y_value.min(), y_value.max())
             axes.set_axis_off()
 
             fig = axes.get_figure()
