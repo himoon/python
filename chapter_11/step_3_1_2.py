@@ -41,10 +41,26 @@ def main():
         section.right_margin = PAGE_MARGIN
         section.bottom_margin = PAGE_MARGIN
 
-    p_title = document.add_heading("정기예금 금리 현황표", level=0)
-    p_title
+    p_title = document.add_paragraph("", style="Title")
+    print(f"* add_run 실행 전 p_title.runs : {p_title.runs}")
+
+    run_title = p_title.add_run("정기예금 금리 현황표")
+    run_title.font.bold = True
+    run_title.font.size = Pt(20)
+    run_title.font.color.rgb = RGBColor(0x03, 0x43, 0xDF)
+    run_title.font.name = "나눔고딕"
+    run_title._element.rPr.rFonts.set(qn("w:eastAsia"), "나눔고딕")
+
+    now_format = datetime.now().isoformat(sep=" ", timespec="minutes")
+    run_datetime = p_title.add_run(f" ({now_format})")
+    run_datetime.font.bold = True
+    run_datetime.font.size = Pt(14)
+    run_datetime.font.color.rgb = RGBColor.from_string("0343df")
+    run_datetime.font.name = "나눔고딕"
+    run_datetime._element.rPr.rFonts.set(qn("w:eastAsia"), "나눔고딕")
 
     document.save(STEP_3_1)
+    print(f"* add_run 실행 후 p_title.runs : {p_title.runs}")
 
 
 #######################################
