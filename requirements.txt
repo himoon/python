@@ -6,3 +6,5 @@ seaborn
 tqdm  # progress bar
 xlrd  # xls support
 docx2pdf
+
+geopandas  # https://geopandas.org/en/stable/index.html
