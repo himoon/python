@@ -12,73 +12,20 @@ from docx.shared import Mm, Pt, RGBColor
 
 import step_0
 import step_1_2
+import step_1_3
 
 #######################################
 # 2. 환경설정
 #######################################
 STEP_3_1 = step_0.OUTPUT_FOLDER / "step_3_1.docx"
-GRAPH_WIDTH, GRAPH_HEIGHT = Mm(30), Mm(8)
+PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN = Mm(210), Mm(297), Mm(12.7)
+GRAPH_WIDTH, GRAPH_HEIGHT, CELL_WIDTH = Mm(30), Mm(8), Mm(35.5)
 
 
 #######################################
 # 3. 기본함수
 #######################################
-def set_margin(document, margin=12.7):
-    for section in document.sections:
-        section.top_margin = Mm(margin)
-        section.bottom_margin = Mm(margin)
-        section.left_margin = Mm(margin)
-        section.right_margin = Mm(margin)
-        section.page_width = Mm(210)
-        section.page_height = Mm(297)
-
-
-def apply_font_style(style, size=None, bold=False, font_name=None, rgb=None):
-    this_font = style.font
-    if size:
-        this_font.size = size
-    if bold:
-        this_font.bold = True
-    if font_name:
-        this_font.name = font_name
-        style._element.rPr.rFonts.set(qn("w:eastAsia"), font_name)
-    if rgb:
-        this_font.color.rgb = RGBColor(*rgb)
-    return style
-
-
-def init_style(document):
-    style_normal = document.styles["Normal"]
-    apply_font_style(style_normal, size=Pt(10), font_name="나눔고딕")
-
-    p_format = style_normal.paragraph_format
-    p_format.space_before = 0
-    p_format.space_after = 0
-    p_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
-
-
-def get_index_values(df_raw):
-    s_value = df_raw["DATA_VALUE"]
-    s_diff = s_value.diff()
-    s_pct_change = s_value.pct_change()
-
-    value = s_value.iloc[-1]
-    diff = s_diff.iloc[-1]
-    diff_rate = s_pct_change.iloc[-1]
-    rgb = (
-        (0xE5, 0x00, 0x00) if diff > 0 else (0x03, 0x43, 0xDF) if diff < 0 else None
-    )  # https://xkcd.com/color/rgb/
-    dt = s_value.index[-1].to_pydatetime()
-
-    return value, diff, diff_rate, rgb, dt
-
-
-def get_arrow(diff):
-    return "▲" if diff > 0 else "▼" if diff < 0 else ""
-
-
-def add_break_line(document, pt):
-    document.add_paragraph().add_run(" ").font.size = Pt(pt)
+pass
 
 
 #######################################
@@ -86,170 +33,107 @@ def add_break_line(document, pt):
 #######################################
 def main():
     document = Document()
-    set_margin(document)
-    init_style(document)
 
-    ##########################################################################
-    ##########################################################################
-    p_title = document.add_heading("정기예금 금리 현황표", level=0)
-    apply_font_style(p_title.runs[-1], Pt(20), True, "나눔고딕")
+    for section in document.sections:
+        section.page_width = PAGE_WIDTH
+        section.page_height = PAGE_HEIGHT
+        section.top_margin = PAGE_MARGIN
+        section.left_margin = PAGE_MARGIN
+        section.right_margin = PAGE_MARGIN
+        section.bottom_margin = PAGE_MARGIN
+
+    p_title = document.add_paragraph("", style="Title")
+    print(f"* add_run 실행 전 p_title.runs : {p_title.runs}")
+
+    run_title = p_title.add_run("정기예금 금리 현황표")
+    run_title.font.bold = True
+    run_title.font.size = Pt(20)
+    run_title.font.color.rgb = RGBColor(0x03, 0x43, 0xDF)
+    run_title.font.name = "나눔고딕"
+    run_title._element.rPr.rFonts.set(qn("w:eastAsia"), "나눔고딕")
 
     now_format = datetime.now().isoformat(sep=" ", timespec="minutes")
-    p_title.add_run(f" ({now_format})")
-    apply_font_style(p_title.runs[-1], Pt(14), True, "나눔고딕")
+    run_datetime = p_title.add_run(f" ({now_format})")
+    run_datetime.font.bold = True
+    run_datetime.font.size = Pt(14)
+    run_datetime.font.color.rgb = RGBColor.from_string("0343df")
+    run_datetime.font.name = "나눔고딕"
+    run_datetime._element.rPr.rFonts.set(qn("w:eastAsia"), "나눔고딕")
 
-    add_break_line(document, 6)
+    style_normal = document.styles["Normal"]
+    style_normal.font.size = Pt(10)
+    style_normal.font.name = "나눔고딕"
+    style_normal._element.rPr.rFonts.set(qn("w:eastAsia"), "나눔고딕")
+    p_format = style_normal.paragraph_format
+    p_format.space_before = 0
+    p_format.space_after = 0
+    p_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
 
-    p_head_1 = document.add_paragraph()
-    apply_font_style(p_head_1.add_run("1. 주요 경제지표"), Pt(14), True)
+    p_blank = document.add_paragraph()
+    p_blank.add_run(" ").font.size = Pt(6)
 
-    add_break_line(document, 10)
-    document.save(STEP_3_1)
+    p_1 = document.add_paragraph("")
+    run_1 = p_1.add_run("1. 주요 경제지표")
+    run_1.font.bold = True
+    run_1.font.size = Pt(14)
 
-    ##########################################################################
-    ##########################################################################
-    with pd.ExcelFile(step_1_2.STEP_1_2) as xlsx:
-        xlsx.sheet_names
-        df_base: pd.DataFrame = pd.read_excel(xlsx, sheet_name="base", index_col="TIME")
-        df_tb: pd.DataFrame = pd.read_excel(xlsx, sheet_name="tb", index_col="TIME")
-        df_cb: pd.DataFrame = pd.read_excel(xlsx, sheet_name="cb", index_col="TIME")
-        df_kospi: pd.DataFrame = pd.read_excel(
-            xlsx, sheet_name="kospi", index_col="TIME"
-        )
-        df_ex: pd.DataFrame = pd.read_excel(xlsx, sheet_name="ex", index_col="TIME")
+    p_blank = document.add_paragraph()
+    p_blank.add_run(" ").font.size = Pt(10)
 
-    ##########################################################################
-    ##########################################################################
     table = document.add_table(rows=1, cols=5)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.allow_autofit = False
+    row_1 = table.rows[0]
 
-    CELL_WIDTH = Mm(35.5)
-    row_1_1 = table.rows[0]
-    for td in row_1_1.cells:
-        td.width = CELL_WIDTH
+    with pd.ExcelFile(step_1_2.STEP_1_2) as xlsx:
+        sheet_names = [x for x in xlsx.sheet_names if x != "기준금리M"]
+        for idx, name in enumerate(sheet_names):
+            print(idx, name)
+            df_raw = pd.read_excel(xlsx, sheet_name=name, index_col="TIME")
+            s_value = df_raw["DATA_VALUE"]
+            s_diff = s_value.diff()
+            s_pct_change = s_value.pct_change()
 
-    cell_a, cell_b, cell_c, cell_d, cell_e = row_1_1.cells
+            last_value = s_value.iloc[-1]
+            last_diff = s_diff.iloc[-1]
+            last_diff_rate = s_pct_change.iloc[-1]
+            rgb = "FF0000" if last_diff > 0 else "0000FF" if last_diff < 0 else "000000"
+            last_dt = s_value.index[-1].to_pydatetime()
+            img_path = step_1_3.STEP_1_3.as_posix().format(name)
 
-    ##########################################################################
-    # 기준금리
-    ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_base)
-    change = f"{get_arrow(diff)}{diff:,.2f}  {diff_rate:+,.2%}"
+            arrow = "▲" if last_diff > 0 else "▼" if last_diff < 0 else ""
+            change = f"{arrow}{last_diff:,.2f}  {last_diff_rate:+,.2%}"
 
-    p1 = cell_a.paragraphs[0]
-    p2, p3, p4, p5 = [cell_a.add_paragraph() for _ in range(4)]
-    apply_font_style(p1.add_run("기준금리"), Pt(12), True)
-    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
-    p4.add_run().add_picture(
-        (step_0.OUTPUT_FOLDER / "step_1_3_base_mo.png").as_posix(),
-        width=GRAPH_WIDTH,
-        height=GRAPH_HEIGHT,
-    )
-    p4.paragraph_format.space_after = Mm(1)
-    p4.paragraph_format.space_before = Mm(1)
-    document.save(STEP_3_1)
+            cell = row_1.cells[idx]
+            cell.width = CELL_WIDTH
+            [cell.add_paragraph() for _ in range(4)]
+            p1, p2, p3, p4, p5 = cell.paragraphs
 
-    ##########################################################################
-    # 국고채
-    ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_tb)
-    change = f"{get_arrow(diff)}{diff:,.3f}  {diff_rate:+,.2%}"
+            p1_run = p1.add_run(name)
+            p1_run.font.size = Pt(12)
+            p1_run.font.bold = True
+            p1_run.font.color.rgb = RGBColor.from_string("333333")
 
-    p1 = cell_b.paragraphs[0]
-    p2, p3, p4, p5 = [cell_b.add_paragraph() for _ in range(4)]
+            p2_run = p2.add_run(f"{last_value:,.2f}")
+            p2_run.font.size = Pt(14)
+            p2_run.font.bold = True
+            p2_run.font.color.rgb = RGBColor.from_string("333333")
 
-    apply_font_style(p1.add_run("국고채"), Pt(12), True)
-    apply_font_style(p1.add_run("(3Y)"), Pt(8), True)
-    apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
-    p4.add_run().add_picture(
-        (step_0.OUTPUT_FOLDER / "step_1_3_tb.png").as_posix(),
-        width=GRAPH_WIDTH,
-        height=GRAPH_HEIGHT,
-    )
-    p4.paragraph_format.space_after = Mm(1)
-    p4.paragraph_format.space_before = Mm(1)
-    document.save(STEP_3_1)
+            p3_run = p3.add_run(change)
+            p3_run.font.size = Pt(10)
+            p3_run.font.bold = True
+            p3_run.font.color.rgb = RGBColor.from_string(rgb)
 
-    ##########################################################################
-    # 회사채
-    ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_cb)
-    change = f"{get_arrow(diff)}{diff:,.3f}  {diff_rate:+,.2%}"
+            p4.add_run().add_picture(img_path, width=GRAPH_WIDTH, height=GRAPH_HEIGHT)
+            p4.paragraph_format.space_after = Mm(1)
+            p4.paragraph_format.space_before = Mm(1)
+            p4.paragraph_format.left_indent = Mm(-1)
 
-    p1 = cell_c.paragraphs[0]
-    p2, p3, p4, p5 = [cell_c.add_paragraph() for _ in range(4)]
+            p5_run = p5.add_run(last_dt.strftime("%Y-%m-%d"))
+            p5_run.font.size = Pt(8)
+            p5_run.font.bold = True
+            p5_run.font.color.rgb = RGBColor.from_string("888888")
 
-    apply_font_style(p1.add_run("회사채"), Pt(12), True)
-    apply_font_style(p1.add_run("(3Y,AA-)"), Pt(8), True)
-    apply_font_style(p2.add_run(f"{value:,.3f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
-    p4.add_run().add_picture(
-        (step_0.OUTPUT_FOLDER / "step_1_3_cb.png").as_posix(),
-        width=GRAPH_WIDTH,
-        height=GRAPH_HEIGHT,
-    )
-    p4.paragraph_format.space_after = Mm(1)
-    p4.paragraph_format.space_before = Mm(1)
-    document.save(STEP_3_1)
-
-    ##########################################################################
-    # KOSPI
-    ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_kospi)
-    change = f"{get_arrow(diff)}{diff:,.2f}  {diff_rate:+,.2%}"
-
-    p1 = cell_d.paragraphs[0]
-    p2, p3, p4, p5 = [cell_d.add_paragraph() for _ in range(4)]
-
-    apply_font_style(p1.add_run("KOSPI"), Pt(12), True)
-    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
-    p4.add_run().add_picture(
-        (step_0.OUTPUT_FOLDER / "step_1_3_kospi.png").as_posix(),
-        width=GRAPH_WIDTH,
-        height=GRAPH_HEIGHT,
-    )
-    p4.paragraph_format.space_after = Mm(1)
-    p4.paragraph_format.space_before = Mm(1)
-    document.save(STEP_3_1)
-
-    ##########################################################################
-    # 원달러
-    ##########################################################################
-    value, diff, diff_rate, rgb, dt = get_index_values(df_ex)
-    change = f"{get_arrow(diff)}{diff:,.2f}  {diff_rate:+,.2%}"
-
-    p1 = cell_e.paragraphs[0]
-    p2, p3, p4, p5 = [cell_e.add_paragraph() for _ in range(4)]
-
-    apply_font_style(p1.add_run("원/달러환율"), Pt(12), True)
-    apply_font_style(p2.add_run(f"{value:,.2f}"), Pt(14), True)
-    apply_font_style(p3.add_run(change), Pt(10), True, rgb=rgb)
-    apply_font_style(
-        p5.add_run(dt.strftime("%Y-%m-%d")), Pt(8), True, rgb=(0x92, 0x95, 0x91)
-    )
-    p4.add_run().add_picture(
-        (step_0.OUTPUT_FOLDER / "step_1_3_ex.png").as_posix(),
-        width=GRAPH_WIDTH,
-        height=GRAPH_HEIGHT,
-    )
-    p4.paragraph_format.space_after = Mm(1)
-    p4.paragraph_format.space_before = Mm(1)
     document.save(STEP_3_1)
 
 
