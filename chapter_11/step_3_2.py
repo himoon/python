@@ -29,7 +29,7 @@ pass
 #######################################
 def main():
     with pd.ExcelFile(step_2_2.STEP_2_2) as xlsx:
-        xlsx.sheet_names
+        print(f"sheet_names: {xlsx.sheet_names!r}")
         df_raw: pd.DataFrame = pd.read_excel(xlsx, sheet_name="deposit")
         df_filtered = df_raw.filter(
             ["금융회사", "상품명", "가입제한여부", "세전이자율", "세후이자율", "최고우대금리"]
@@ -37,10 +37,9 @@ def main():
 
     document = Document(step_3_1.STEP_3_1)
     p_head = document.add_paragraph()
-    step_3_1.apply_font_style(p_head.add_run("2. 주요 은행 정기예금 금리"), Pt(14), True)
     p_head.paragraph_format.space_before = Mm(10)
     p_head.paragraph_format.space_after = Mm(2)
-    document.save(STEP_3_2)
+    step_3_1.set_font_style(p_head.add_run("2. 주요 은행 정기예금 금리"), size=Pt(14), bold=True)
 
     table = document.add_table(rows=1, cols=6)
     table.style = "Light Shading Accent 4"
@@ -50,8 +49,7 @@ def main():
     th = table.rows[0]
     th_text = ["금융회사", "상품명", "가입제한", "세전", "세후", "최고우대"]
     th_width = [Mm(40), Mm(53), Mm(20), Mm(20), Mm(20), Mm(20)]
-    for idx in range(len(th.cells)):
-        td = th.cells[idx]
+    for idx, td in enumerate(th.cells):
         td.text = f"{th_text[idx]}"
         td.width = th_width[idx]
         td.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -59,12 +57,9 @@ def main():
         td.paragraphs[-1].runs[-1].font.bold = True
         td.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-    document.save(STEP_3_2)
-
     for _, s_row in df_filtered.head(NUM_OF_ROWS).iterrows():
-        type(s_row)
         tr = table.add_row()
-        for idx in range(len(tr.cells)):
+        for idx, td in enumerate(tr.cells):
             td = tr.cells[idx]
             td.text = f"{s_row.iloc[idx]}"
             td.width = th_width[idx]
