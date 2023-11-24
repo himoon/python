@@ -8,5 +8,6 @@
     ".vscode": true,
     "**/__pycache__": true
   },
-  "jupyter.interactiveWindow.textEditor.executeSelection": true
+  "jupyter.interactiveWindow.textEditor.executeSelection": true,
+  "black-formatter.args": ["--line-length", "140"]
 }

@@ -5,7 +5,6 @@ from docx2pdf import convert
 
 import step_0
 import step_3_3
-import step_3_4
 
 #######################################
 # 2. 환경설정
@@ -23,7 +22,7 @@ pass
 # 4. 메인함수
 #######################################
 def main():
-    convert(step_3_3.STEP_3_3, step_3_4.STEP_3_4)
+    convert(step_3_3.STEP_3_3, STEP_3_4)
 
 
 #######################################

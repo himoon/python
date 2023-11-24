@@ -29,11 +29,8 @@ pass
 #######################################
 def main():
     with pd.ExcelFile(step_2_2.STEP_2_2) as xlsx:
-        print(f"sheet_names: {xlsx.sheet_names!r}")
-        df_raw: pd.DataFrame = pd.read_excel(xlsx, sheet_name="deposit")
-        df_filtered = df_raw.filter(
-            ["금융회사", "상품명", "가입제한여부", "세전이자율", "세후이자율", "최고우대금리"]
-        )
+        df_raw = pd.read_excel(xlsx, sheet_name="deposit")
+        df_filtered = df_raw.filter(["금융회사", "상품명", "가입제한여부", "세전이자율", "세후이자율", "최고우대금리"])
 
     document = Document(step_3_1.STEP_3_1)
     p_head = document.add_paragraph()
@@ -46,16 +43,15 @@ def main():
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.allow_autofit = False
 
-    th = table.rows[0]
+    tr = table.rows[0]
     th_text = ["금융회사", "상품명", "가입제한", "세전", "세후", "최고우대"]
     th_width = [Mm(40), Mm(53), Mm(20), Mm(20), Mm(20), Mm(20)]
-    for idx, td in enumerate(th.cells):
-        td.text = f"{th_text[idx]}"
-        td.width = th_width[idx]
-        td.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.LEFT
-        td.paragraphs[-1].runs[-1].font.size = Pt(12)
-        td.paragraphs[-1].runs[-1].font.bold = True
-        td.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    for idx, th in enumerate(tr.cells):
+        th.text = f"{th_text[idx]}"
+        th.width = th_width[idx]
+        th.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.LEFT
+        th.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+        step_3_1.set_font_style(th.paragraphs[-1].runs[-1], size=Pt(12), bold=True)
 
     for _, s_row in df_filtered.head(NUM_OF_ROWS).iterrows():
         tr = table.add_row()
