@@ -1,10 +1,9 @@
 datakart
 docx2pdf
+geopandas 
 openpyxl  # xlsx support
 python-dateutil  # dateutil
 python-docx  # docx support
 requests
 seaborn
 xlrd  # xls support
-
-# geopandas  # https://geopandas.org/en/stable/index.html
