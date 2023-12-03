@@ -1,32 +1,15 @@
-# 국토교통부_아파트매매 실거래 상세 자료 https://www.data.go.kr/data/15057511/openapi.do
-# 법정동코드목록조회 https://www.code.go.kr/stdcode/regCodeL.do
-
-
-import xml.etree.ElementTree as ET
-
 import requests
 
-import step_0
-
-XML_OUTPUT = step_0.OUTPUT_FOLDER / "step_1_1.xml"
-
-
-url = "http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev"
+API_KEY = "rrRMoK6NHEsLQc4Y2omMvJBTGnaLe8pZzRqAjoGH+mfOerOQtJudgapObiTi2gl07RWrZjO0ie5yryFlMxGV9A=="
+url = "http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade"
 params = {
-    "serviceKey": step_0.API_KEY_DATA_GO,
-    # "pageNo": "1",
-    # "numOfRows": "10",
+    "serviceKey": API_KEY,
     "LAWD_CD": "11110",
-    "DEAL_YMD": "202306",
+    "DEAL_YMD": "201512",
 }
 
-resp = requests.get(url, params=params)
-resp.content
+response = requests.get(url, params=params)
+print(response.content)
 
-step_0.init_output_folder()
-with open(XML_OUTPUT, "w") as fp:
-    fp.write(resp.text)
-
-# root = ET.fromstring(resp.text)
-# for child in root.iter():
-#     print(child)
+# 국토교통부_아파트매매 실거래자료
+# https://www.data.go.kr/data/15058747/openapi.do

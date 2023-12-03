@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import requests
-from enums import Boundary
 from matplotlib import font_manager, rc
 from pyproj import Transformer
+from working.enums import Boundary
 
 # data = np.random.randint(-100, 100, 50).cumsum()
 

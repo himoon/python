@@ -7,3 +7,4 @@ python-docx  # docx support
 requests
 seaborn
 xlrd  # xls support
+xmltodict
