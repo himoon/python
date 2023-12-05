@@ -25,6 +25,7 @@ pass
 # 4. 메인함수
 #######################################
 def main():
+    # https://sgis.kostat.go.kr/developer/html/newOpenApi/api/dataApi/addressBoundary.html#hadmarea
     api = Sgis(API_KEY, API_SEC)
     resp = api.hadm_area(adm_cd="11")
     with open(STEP_1_3, "w", encoding="utf8") as fp:
