@@ -6,5 +6,6 @@ python-dateutil  # dateutil
 python-docx  # docx support
 requests
 seaborn
+tqdm
 xlrd  # xls support
 xmltodict

@@ -3,7 +3,7 @@
 #######################################
 import json
 
-from sgis import Sgis
+from datakart import Sgis
 
 import step_0
 
@@ -26,8 +26,8 @@ pass
 #######################################
 def main():
     api = Sgis(API_KEY, API_SEC)
-    resp = api.hadm_area(year="2023", adm_cd="11", low_search="2")
-    with open(STEP_1_3, "w") as fp:
+    resp = api.hadm_area(adm_cd="11")
+    with open(STEP_1_3, "w", encoding="utf8") as fp:
         json.dump(resp, fp, ensure_ascii=False)
 
 

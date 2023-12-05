@@ -31,5 +31,4 @@ access = auth()
 geojson = get_hadm_area(access.get("accessToken", ""))
 pprint(geojson)
 
-
 # SGIS https://sgis.kostat.go.kr/developer/html/newOpenApi/api/dataApi/basics.html#auth

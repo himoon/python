@@ -6,9 +6,8 @@ from pathlib import Path
 #######################################
 # 2. 환경설정
 #######################################
-API_KEY_DATA_GO = "rrRMoK6NHEsLQc4Y2omMvJBTGnaLe8pZzRqAjoGH+mfOerOQtJudgapObiTi2gl07RWrZjO0ie5yryFlMxGV9A=="
-WORKING_FOLDER = Path(__file__).parent
-OUTPUT_FOLDER = WORKING_FOLDER / "output"
+CWD = Path(__file__).parent
+OUTPUT_FOLDER = CWD / "output"
 
 
 #######################################
