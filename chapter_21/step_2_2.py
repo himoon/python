@@ -29,7 +29,6 @@ pass
 def main():
     gdf_raw: gpd.GeoDataFrame = gpd.read_file(step_1_3.STEP_1_3)
     gdf_fixed = gdf_raw.set_crs("EPSG:5174", allow_override=True)
-    gdf_fixed.plot()
 
     df_value = pd.read_excel(step_2_1.STEP_2_1, sheet_name="result")
 
