@@ -1,13 +1,11 @@
 {
+  "black-formatter.args": ["--line-length", "140"],
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
   },
   "editor.formatOnSave": true,
   "files.exclude": {
-    ".venv": true,
-    ".vscode": true,
     "**/__pycache__": true
   },
-  "jupyter.interactiveWindow.textEditor.executeSelection": true,
-  "black-formatter.args": ["--line-length", "140"]
+  "jupyter.interactiveWindow.textEditor.executeSelection": true
 }
