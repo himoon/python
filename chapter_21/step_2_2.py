@@ -15,7 +15,7 @@ import step_2_1
 #######################################
 # 2. 환경설정
 #######################################
-STEP_2_2 = step_0.OUTPUT_DIR / "step_2_2.xlsx"
+STEP_2_2 = step_0.OUTPUT_DIR / "step_2_2.geojson"
 
 
 #######################################
@@ -24,7 +24,7 @@ STEP_2_2 = step_0.OUTPUT_DIR / "step_2_2.xlsx"
 def set_font():
     FONT_PATH = Path(__file__).parent.parent / "font/Pretendard-Bold.ttf"
     font_name = fm.FontProperties(fname=FONT_PATH).get_name()
-    rc("font", family=font_name)  ## 이 두 줄을
+    rc("font", family=font_name)
 
 
 #######################################
@@ -48,6 +48,8 @@ def main():
     gdf_merged.plot(ax=ax, color="none", edgecolor="black", linewidth=1)
     ax.set_axis_off()
     # https://shotlefttodatascience.com/2018/05/16/adding-labels-to-districts-in-geopandas/
+
+    gdf_merged.to_json(STEP_2_2, index=False)
 
 
 #######################################
