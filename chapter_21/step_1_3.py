@@ -12,7 +12,7 @@ import step_0
 #######################################
 API_KEY = "c45c510fe7854d5aae90"
 API_SEC = "fde5af5e4362466b91fe"
-STEP_1_3 = step_0.OUTPUT_FOLDER / "step_1_3.geojson"
+STEP_1_3 = step_0.OUTPUT_DIR / "step_1_3.geojson"
 
 
 #######################################

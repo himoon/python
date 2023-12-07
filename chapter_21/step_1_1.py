@@ -10,7 +10,7 @@ import step_0
 # 2. 환경설정
 #######################################
 API_KEY = "rrRMoK6NHEsLQc4Y2omMvJBTGnaLe8pZzRqAjoGH+mfOerOQtJudgapObiTi2gl07RWrZjO0ie5yryFlMxGV9A=="
-STEP_1_1 = step_0.OUTPUT_FOLDER / "step_1_1.xlsx"
+STEP_1_1 = step_0.OUTPUT_DIR / "step_1_1.xlsx"
 
 
 #######################################
