@@ -22,9 +22,9 @@ pass
 # 4. 메인함수
 #######################################
 def main():
-    df_raw = pd.read_excel(step_1_2.STEP_1_2, dtype="str")
+    df_apt_trans = pd.read_excel(step_1_2.STEP_1_2, dtype="str")
 
-    df_copied = df_raw.copy()
+    df_copied = df_apt_trans.copy()
     df_copied["월"] = df_copied["월"].str.pad(width=2, side="left", fillchar="0")
     df_copied["거래년월"] = df_copied["년"] + df_copied["월"]
 
@@ -47,7 +47,7 @@ def main():
 
     with pd.ExcelWriter(STEP_2_1) as writer:
         df_sido_sgg.to_excel(writer, sheet_name="sido_sgg", index=False)
-        df_raw.to_excel(writer, sheet_name="raw", index=False)
+        df_apt_trans.to_excel(writer, sheet_name="raw", index=False)
         df_sorted.to_excel(writer, sheet_name="sorted", index=False)
         df_result.to_excel(writer, sheet_name="result", index=False)
 

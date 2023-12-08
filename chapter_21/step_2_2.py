@@ -35,21 +35,25 @@ def main():
 
     gdf_raw: gpd.GeoDataFrame = gpd.read_file(step_1_3.STEP_1_3)
     gdf_raw = gdf_raw.astype({"x": "float", "y": "float"})
-    gdf_fixed = gdf_raw.set_crs("EPSG:5174", allow_override=True)
+    gdf_filtered = gdf_raw.set_crs("EPSG:5174", allow_override=True).filter(["adm_nm", "x", "y", "geometry"])
 
-    df_value = pd.read_excel(step_2_1.STEP_2_1, sheet_name="result")
-    df_value["시군구"] = df_value["지역명"].str.rsplit(n=1, expand=True).iloc[:, -1]
+    df_price = pd.read_excel(step_2_1.STEP_2_1, sheet_name="result")
+    df_price["시군구"] = df_price["지역명"].str.rsplit(n=1, expand=True).iloc[:, -1]
+    df_price.columns = ["adm_nm", "adm_cd", "avg_price", "sgg_nm"]
 
-    gdf_merged: gpd.GeoDataFrame = pd.merge(gdf_fixed, df_value, left_on="adm_nm", right_on="지역명", how="inner")
-    ax = gdf_merged.plot(column="면적당금액", legend=True, cmap="OrRd", figsize=(9, 6))
+    gdf_merged: gpd.GeoDataFrame = pd.merge(gdf_filtered, df_price, on="adm_nm", how="inner")
+    gdf_merged = gdf_merged.filter(["adm_nm", "adm_cd", "sgg_nm", "avg_price", "x", "y", "geometry"])
+
+    ax = gdf_merged.plot(column="avg_price", legend=True, cmap="OrRd", figsize=(9, 6))
     # gdf_merged.apply(lambda x: ax.annotate(text=x["시군구"], xy=x.geometry.representative_point().coords[0], ha="center"), axis=1)
-    gdf_merged.apply(lambda x: ax.annotate(text=x["시군구"], xy=(x["x"], x["y"]), ha="center"), axis=1)
+    gdf_merged.apply(lambda x: ax.annotate(text=x["sgg_nm"], xy=(x["x"], x["y"]), ha="center"), axis=1)
     # gdf_merged.apply(lambda x: ax.annotate(text=x["시군구"], xy=x.geometry.centroid.coords[0], ha="center"), axis=1)
     gdf_merged.plot(ax=ax, color="none", edgecolor="black", linewidth=1)
     ax.set_axis_off()
     # https://shotlefttodatascience.com/2018/05/16/adding-labels-to-districts-in-geopandas/
 
-    gdf_merged.to_json(STEP_2_2, index=False)
+    with open(STEP_2_2, "w") as fp:
+        fp.write(gdf_merged.to_json(drop_id=True))
 
 
 #######################################

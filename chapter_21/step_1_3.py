@@ -3,6 +3,7 @@
 #######################################
 import json
 
+import geopandas as gpd
 from datakart import Sgis
 
 import step_0
@@ -27,9 +28,14 @@ pass
 def main():
     # https://sgis.kostat.go.kr/developer/html/newOpenApi/api/dataApi/addressBoundary.html#hadmarea
     api = Sgis(API_KEY, API_SEC)
-    resp = api.hadm_area(adm_cd="11")
+    resp = api.hadm_area(adm_cd="11", low_search="1")
+    gdf_resp: gpd.GeoDataFrame = gpd.read_file(json.dumps(resp))
+    gdf_resp.set_crs("epsg:5179", allow_override=True, inplace=True)
+    gdf_resp = gdf_resp.filter(["adm_cd", "adm_nm", "geometry"])
+    gdf_resp.explore()
+
     with open(STEP_1_3, "w", encoding="utf8") as fp:
-        json.dump(resp, fp, ensure_ascii=False)
+        fp.write(gdf_resp.to_json(drop_id=True, to_wgs84=True))
 
 
 #######################################

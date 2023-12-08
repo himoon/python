@@ -30,48 +30,55 @@ pass
 # 4. 메인함수
 #######################################
 def main():
-    df_json = pd.read_json(step_1_3.STEP_1_3)
+    def multipolygon_to_coordinates(x):
+        if hasattr(x, "geoms"):
+            lon, lat = x.geoms[0].exterior.xy
+            return [[x, y] for x, y in zip(lon, lat)]
+        else:
+            lon, lat = x.exterior.xy
+            return [[x, y] for x, y in zip(lon, lat)]
 
-    gdf_raw: gpd.GeoDataFrame = gpd.read_file(step_1_3.STEP_1_3)
-    gdf_raw = gdf_raw.astype({"x": "float", "y": "float"})
-    gdf_fixed = gdf_raw.set_crs("EPSG:5174", allow_override=True)
-    gdf_fixed
-    gdf_fixed.geometry.get_coordinates()
+    df_json = gpd.read_file(step_0.OUTPUT_DIR / "older_seoul.geojson")
+    df_json = gpd.read_file(step_2_2.STEP_2_2)
+    df_json["coordinates"] = df_json["geometry"].apply(multipolygon_to_coordinates)
+    df_json.explore()
+    # del df_json["geometry"]
+    # df_json["정규화인구"] = df_json["인구"] / df_json["인구"].max()
 
-    df = pd.DataFrame()
-    df["coordinates"] = df_json["features"].apply(lambda row: row["geometry"]["coordinates"])
-
-    view_state = pdk.ViewState(
-        latitude=37.55,
-        longitude=127,
-        zoom=11,
-        maxZoom=16,
-        pitch=45,
-        bearing=0,
+    # Make layer
+    layer = pdk.Layer(
+        "PolygonLayer",  # 사용할 Layer 타입
+        df_json,  # 시각화에 쓰일 데이터프레임
+        get_polygon="coordinates",  # geometry 정보를 담고있는 컬럼 이름
+        # get_fill_color="[0, 255*정규화인구, 0]",  # 각 데이터 별 rgb 또는 rgba 값 (0~255)
+        get_fill_color="[0, 255, 0]",  # 각 데이터 별 rgb 또는 rgba 값 (0~255)
+        pickable=True,  # 지도와 interactive 한 동작 on
+        auto_highlight=True,  # 마우스 오버(hover) 시 박스 출력
     )
 
-    polygon_layer = pdk.Layer(
-        "PolygonLayer",
-        df,
-        id="geojson",
-        opacity=0.8,
-        stroked=False,
-        get_polygon="coordinates",
-        filled=True,
-        extruded=True,
-        wireframe=True,
-        get_elevation="elevation",
-        get_fill_color="[255, 255, 30]",
-        get_line_color=[255, 255, 255],
-        auto_highlight=True,
-        pickable=True,
+    # Set the viewport location
+    center = [126.986, 37.565]
+    view_state = pdk.ViewState(longitude=center[0], latitude=center[1], zoom=10)
+
+    # Render
+    r = pdk.Deck(layers=[layer], initial_view_state=view_state)
+    r.to_html()
+
+    layer = pdk.Layer(
+        "PolygonLayer",  # 사용할 Layer 타입
+        df_json,  # 시각화에 쓰일 데이터프레임
+        get_polygon="coords",  # geometry 정보를 담고있는 컬럼 이름
+        get_fill_color="[0, 255, 0]",  # 각 데이터 별 rgb 또는 rgba 값 (0~255)
+        pickable=True,  # 지도와 interactive 한 동작 on
+        auto_highlight=True,  # 마우스 오버(hover) 시 박스 출력
     )
 
-    r = pdk.Deck(
-        layers=[polygon_layer],
-        initial_view_state=view_state,
-        map_style=pdk.map_styles.LIGHT,
-    )
+    # Set the viewport location
+    center = [126.986, 37.565]
+    view_state = pdk.ViewState(longitude=center[0], latitude=center[1], zoom=10)
+
+    # Render
+    r = pdk.Deck(layers=[layer], initial_view_state=view_state)
     r.to_html()
 
 

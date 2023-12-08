@@ -1,7 +1,9 @@
 datakart
 docx2pdf
+folium
 geopandas
 jupyter
+mapclassify
 openpyxl
 pip-tools
 pydeck
