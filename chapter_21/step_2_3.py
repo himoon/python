@@ -1,17 +1,13 @@
 #######################################
 # 1. 필요모듈
 #######################################
-from pathlib import Path
-
 import geopandas as gpd
-import matplotlib.font_manager as fm
-import pandas as pd
+import mapclassify as mc
+import matplotlib as mpl
 import pydeck as pdk
-from matplotlib import rc
+import streamlit as st
 
 import step_0
-import step_1_3
-import step_2_1
 import step_2_2
 
 #######################################
@@ -30,56 +26,47 @@ pass
 # 4. 메인함수
 #######################################
 def main():
-    def multipolygon_to_coordinates(x):
-        if hasattr(x, "geoms"):
-            lon, lat = x.geoms[0].exterior.xy
-            return [[x, y] for x, y in zip(lon, lat)]
-        else:
-            lon, lat = x.exterior.xy
-            return [[x, y] for x, y in zip(lon, lat)]
+    st.markdown("# 서울지역 단위면적당 아파트 매매 가격")
 
-    df_json = gpd.read_file(step_0.OUTPUT_DIR / "older_seoul.geojson")
-    df_json = gpd.read_file(step_2_2.STEP_2_2)
-    df_json["coordinates"] = df_json["geometry"].apply(multipolygon_to_coordinates)
-    df_json.explore()
-    # del df_json["geometry"]
-    # df_json["정규화인구"] = df_json["인구"] / df_json["인구"].max()
+    gdf_raw = gpd.read_file(step_2_2.STEP_2_2)
 
-    # Make layer
-    layer = pdk.Layer(
-        "PolygonLayer",  # 사용할 Layer 타입
-        df_json,  # 시각화에 쓰일 데이터프레임
-        get_polygon="coordinates",  # geometry 정보를 담고있는 컬럼 이름
-        # get_fill_color="[0, 255*정규화인구, 0]",  # 각 데이터 별 rgb 또는 rgba 값 (0~255)
-        get_fill_color="[0, 255, 0]",  # 각 데이터 별 rgb 또는 rgba 값 (0~255)
-        pickable=True,  # 지도와 interactive 한 동작 on
-        auto_highlight=True,  # 마우스 오버(hover) 시 박스 출력
+    k = 10
+    c10 = mc.MaximumBreaks(gdf_raw["avg_price"], k=k)
+    gdf_raw["mc"] = c10.yb
+    # gdf_raw.assign(cl=c10.yb).plot(column="cl", categorical=True, k=10, cmap="OrRd", linewidth=0.1, edgecolor="white", legend=True)
+
+    cmap = mpl.colormaps["OrRd"]
+    norm = mpl.colors.Normalize(vmin=c10.yb.min(), vmax=c10.yb.max())
+    smap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+    rgba = smap.to_rgba(gdf_raw["mc"], bytes=True).astype(int)
+    gdf_raw["color"] = rgba.tolist()
+
+    center = gdf_raw.geometry.unary_union.centroid
+    view_state = pdk.ViewState(longitude=center.x, latitude=center.y, zoom=9.5, bearing=0, pitch=30)
+
+    geojson_layer = pdk.Layer(
+        "GeoJsonLayer",
+        gdf_raw,
+        opacity=0.8,
+        stroked=False,
+        filled=True,
+        wireframe=False,
+        extruded=True,
+        get_elevation="avg_price",
+        get_fill_color="color",
+        get_line_color=[255, 255, 255],
+        get_line_width=100,
+        pickable=True,
+        auto_highlight=True,
     )
 
-    # Set the viewport location
-    center = [126.986, 37.565]
-    view_state = pdk.ViewState(longitude=center[0], latitude=center[1], zoom=10)
-
-    # Render
-    r = pdk.Deck(layers=[layer], initial_view_state=view_state)
-    r.to_html()
-
-    layer = pdk.Layer(
-        "PolygonLayer",  # 사용할 Layer 타입
-        df_json,  # 시각화에 쓰일 데이터프레임
-        get_polygon="coords",  # geometry 정보를 담고있는 컬럼 이름
-        get_fill_color="[0, 255, 0]",  # 각 데이터 별 rgb 또는 rgba 값 (0~255)
-        pickable=True,  # 지도와 interactive 한 동작 on
-        auto_highlight=True,  # 마우스 오버(hover) 시 박스 출력
+    deck = pdk.Deck(
+        layers=[geojson_layer],
+        initial_view_state=view_state,
+        map_style="road",
+        tooltip={"text": "{adm_nm}", "style": {"color": "white"}},
     )
-
-    # Set the viewport location
-    center = [126.986, 37.565]
-    view_state = pdk.ViewState(longitude=center[0], latitude=center[1], zoom=10)
-
-    # Render
-    r = pdk.Deck(layers=[layer], initial_view_state=view_state)
-    r.to_html()
+    st.pydeck_chart(deck)
 
 
 #######################################

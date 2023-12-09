@@ -31,6 +31,8 @@ def main():
     resp = api.hadm_area(adm_cd="11", low_search="1")
     gdf_resp: gpd.GeoDataFrame = gpd.read_file(json.dumps(resp))
     gdf_resp.set_crs("epsg:5179", allow_override=True, inplace=True)
+    gdf_resp.sort_values("adm_nm", inplace=True)
+    gdf_resp.reset_index(drop=True, inplace=True)
     gdf_resp = gdf_resp.filter(["adm_cd", "adm_nm", "geometry"])
     gdf_resp.explore()
 
