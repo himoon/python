@@ -27,10 +27,7 @@ def sido_sgg_codes():
 
     query = "sgg_cd != '000' and umd_cd == '000' and ri_cd == '00'"
     df_queried = df_region.query(query)
-    df_queried.head(3)
-
     df_filterd = df_queried.filter(["sido_sgg", "locatadd_nm"]).reset_index(drop=True)
-    df_filterd.head(3)
     return df_filterd.values.tolist()
 
 
@@ -46,11 +43,12 @@ def main():
     sido_sgg_many = sido_sgg_codes()
     deal_ym_many = date_range()
 
+    # 국토교통부_아파트매매 실거래자료 https://www.data.go.kr/data/15058747/openapi.do?recommendDataYn=Y
     api = Datagokr(API_KEY)
     result = []
     for sido_sgg, sido_sgg_nm in tqdm(sido_sgg_many, position=0, leave=False):
         for deal_ym in tqdm(deal_ym_many, position=1, desc=f"[{sido_sgg}][{sido_sgg_nm}]"):
-            trans = api.apt_trans(lawd_code=sido_sgg, deal_ym=deal_ym)
+            trans = api.apt_trans(sido_sgg, deal_ym)
             result += trans
 
     df_result = pd.DataFrame(result)

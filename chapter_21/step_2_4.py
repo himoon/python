@@ -2,14 +2,18 @@
 # 1. 필요모듈
 #######################################
 import geopandas as gpd
+import mapclassify as mc
+import matplotlib as mpl
+import pandas as pd
+import pydeck as pdk
 
 import step_0
-import step_2_1
+import step_2_3
 
 #######################################
 # 2. 환경설정
+STEP_2_4 = step_0.OUTPUT_DIR / "step_2_4_{}.png"
 #######################################
-STEP_2_2 = step_0.OUTPUT_DIR / "step_2_2.png"
 
 
 #######################################
@@ -22,11 +26,10 @@ pass
 # 4. 메인함수
 #######################################
 def main():
-    gdf_raw: gpd.GeoDataFrame = gpd.read_file(step_2_1.STEP_2_1)
-    ax = gdf_raw.plot()
+    gdf_raw: gpd.GeoDataFrame = gpd.read_file(step_2_3.STEP_2_3)
+    ax = gdf_raw.plot(column="avg_price", cmap="OrRd", edgecolor="k", legend=True)
     ax.set_axis_off()
-    fig = ax.get_figure()
-    fig.savefig(STEP_2_2)
+    ax.get_figure().savefig(STEP_2_4.as_posix().format(1))
 
 
 #######################################
