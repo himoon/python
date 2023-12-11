@@ -8,7 +8,7 @@ import pydeck as pdk
 import streamlit as st
 
 import step_0
-import step_2_1
+import step_2_3
 
 #######################################
 # 2. 환경설정
@@ -28,10 +28,10 @@ pass
 def main():
     st.markdown("# 서울지역 단위면적당 아파트 매매 가격")
 
-    gdf_raw = gpd.read_file(step_2_1.STEP_2_1)
+    gdf_raw = gpd.read_file(step_2_3.STEP_2_3)
 
     k = 10
-    c10 = mc.MaximumBreaks(gdf_raw["avg_price"], k=k)
+    c10 = mc.Quantiles(gdf_raw["avg_price"], k=k)
     gdf_raw["mc"] = c10.yb
 
     cmap = mpl.colormaps["OrRd"]

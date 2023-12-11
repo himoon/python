@@ -2,10 +2,6 @@
 # 1. 필요모듈
 #######################################
 import geopandas as gpd
-import mapclassify as mc
-import matplotlib as mpl
-import pandas as pd
-import pydeck as pdk
 
 import step_0
 import step_2_3
