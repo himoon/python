@@ -31,6 +31,14 @@ def main():
     ax.set_axis_off()
     ax.get_figure().savefig(STEP_2_4.as_posix().format(1))
 
+    ax = gdf_raw.plot(column="avg_price", cmap="OrRd", edgecolor="k", legend=True, scheme="quantiles", k=5)
+    ax.set_axis_off()
+    ax.get_figure().savefig(STEP_2_4.as_posix().format(2))
+
+    ax = gdf_raw.plot(column="avg_price", cmap="OrRd", edgecolor="k", legend=True, scheme="quantiles", k=10)
+    ax.set_axis_off()
+    ax.get_figure().savefig(STEP_2_4.as_posix().format(3))
+
 
 #######################################
 # 5. 실행
