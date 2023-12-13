@@ -27,7 +27,7 @@ attrs==23.1.0
     #   fiona
     #   jsonschema
     #   referencing
-babel==2.13.1
+babel==2.14.0
     # via jupyterlab-server
 beautifulsoup4==4.12.2
     # via nbconvert
@@ -69,7 +69,7 @@ contourpy==1.2.0
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-datakart==1.3.1
+datakart==1.6.2
     # via -r requirements.in
 debugpy==1.8.0
     # via ipykernel
@@ -184,7 +184,7 @@ jupyter-server==2.12.1
     #   jupyterlab-server
     #   notebook
     #   notebook-shim
-jupyter-server-terminals==0.4.4
+jupyter-server-terminals==0.5.0
     # via jupyter-server
 jupyterlab==4.0.9
     # via notebook
@@ -274,7 +274,7 @@ packaging==23.2
     #   qtconsole
     #   qtpy
     #   streamlit
-pandas==2.1.3
+pandas==2.1.4
     # via
     #   altair
     #   geopandas
@@ -297,7 +297,7 @@ platformdirs==4.1.0
     # via jupyter-core
 prometheus-client==0.19.0
     # via jupyter-server
-prompt-toolkit==3.0.41
+prompt-toolkit==3.0.43
     # via
     #   ipython
     #   jupyter-console
@@ -466,7 +466,7 @@ traitlets==5.14.0
     #   qtconsole
 types-python-dateutil==2.8.19.14
     # via arrow
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   altair
     #   async-lru
