@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import pathlib
+import re
 import time
 from pprint import pprint
 
@@ -82,7 +83,7 @@ NAVER_SEC = "WwF0cMKQKS"
 JUSO_KEY = "devU01TX0FVVEgyMDIzMTIxNDAwMzkyNjExNDM1NDg="
 KAKAO_KEY = "2f15ef773b35f21f74877b7ed5122a76"
 
-df_raw = pd.read_excel(INPUT, dtype="str", sheet_name="반기보('23.6월말)", skiprows=3, header=None)
+df_raw = pd.read_excel(INPUT, sheet_name="반기보('23.6월말)", skiprows=3, header=None)
 df_raw.head(5)
 
 df_header = df_raw.iloc[0:2].ffill(axis="rows").ffill(axis="columns")
@@ -92,31 +93,40 @@ ser_header
 df_reset = df_raw.iloc[2:].reset_index(drop=True)
 # df_sliced.columns = ser_header
 df_reset.columns = ["은행명", "점포명", "점포구분", "시도", "시군구", "읍면동", "도로명", "전화번호"]
+df_reset.fillna("", inplace=True)
 df_reset.head()
 
-df_queried = df_reset.query("점포구분=='지점'").sort_values("점포명").reset_index(drop=True)
+df_queried = df_reset.query("점포구분=='지점' and 은행명=='산업은행'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
 df_filtered = df_queried.filter(["은행명", "점포명", "점포구분", "시도", "시군구", "도로명"])
 df_filtered.head()
 
 df_validated = df_filtered.copy()
-df_validated.isna().any(axis="rows")
-df_validated = df_validated.fillna("")
+df_validated = df_validated.fillna("").applymap(lambda x: str(x).strip())
+df_validated["도로명"] = df_validated["도로명"].replace(r"\(.+\)", "", regex=True)
+# df_validated.apply(lambda x: print(x.unique()), axis=0)
+df_validated.to_excel(OUTPUT)
+
+df_validated["은행명"].sort_values()
+df_validated["점포명"].sort_values()
+df_validated["점포구분"].sort_values()
+df_validated["시도"].sort_values()
+df_validated["시군구"].sort_values()
+df_validated["도로명"].sort_values()
 
 juso = Jusogokr(JUSO_KEY)
 naver = Naver(NAVER_KEY, NAVER_SEC)
 kakao = Kakao(KAKAO_KEY)
 
-"""
-각 필드값 검증
-필드 앞뒤 공백 제거
-0 제거
-괄호 제거
-"""
-
 
 for idx, ser in tqdm(df_validated.iterrows(), total=df_validated.shape[0]):
     # ser = df_validated.loc[884]
     addr = f'{ser["시도"]} {ser["시군구"]} {ser["도로명"]}'
+    if not addr.strip():
+        df_validated.loc[idx, "siNm"] = ""
+        df_validated.loc[idx, "sggNm"] = ""
+        df_validated.loc[idx, "roadNm"] = ""
+        continue
+
     rows = juso.addr(addr)
     if not rows:
         logger.error(f"{addr} not found, try kakao")
@@ -137,6 +147,9 @@ for idx, ser in tqdm(df_validated.iterrows(), total=df_validated.shape[0]):
 
     if not rows:
         logger.error(f"{addr} not found")
+        df_validated.loc[idx, "siNm"] = ""
+        df_validated.loc[idx, "sggNm"] = ""
+        df_validated.loc[idx, "roadNm"] = ""
         continue
 
     row = rows[0]
@@ -159,3 +172,5 @@ df_validated["original"] = False
 df_validated.loc[same_addr, "original"] = True
 
 df_validated.to_excel(OUTPUT, index=False)
+
+# "서울특별시 강남구 언주로 706 우정빌딩 not found", 1695
