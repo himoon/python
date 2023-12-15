@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import pathlib
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 from datakart import Jusogokr, Kakao, Naver
@@ -19,6 +21,9 @@ KAKAO_KEY = "2f15ef773b35f21f74877b7ed5122a76"
 
 
 logger = logging.getLogger(__name__)
+juso = Jusogokr(JUSO_KEY)
+kakao = Kakao(KAKAO_KEY)
+naver = Naver(NAVER_KEY, NAVER_SEC)
 
 
 def init_output_folder():
@@ -37,10 +42,34 @@ def load_excel() -> pd.DataFrame:
     return df_body.fillna("").map(lambda x: str(x).strip())
 
 
+def query_kakao(keyword: str) -> str:
+    resp = kakao.local_keyword(keyword.strip())
+    return resp[0].get("road_address_name", "") if resp else ""
+
+
+def query_naver(keyword: str) -> str:
+    resp = naver.local(keyword.strip())
+    return resp[0].get("roadAddress", "") if resp else ""
+
+
+def query_juso(keyword: str) -> dict:
+    resp = juso.addr(keyword.strip())
+    if not resp:
+        return {}
+
+    elem = resp[0]
+    sido = elem.get("siNm", "")
+    sgg = elem.get("sggNm", "")
+    road = elem.get("rn", "")
+    buld_main = elem.get("buldMnnm", "")
+    buld_sub = elem.get("buldSlno", "")
+    buld = buld_main if buld_sub == "0" else f"{buld_main}-{buld_sub}"
+    return dict(sido=sido, sgg=sgg, road=road, buld=buld)
+
+
 def main():
     df_raw = load_excel()
-    # df_query = df_raw.query("점포구분=='지점' and 은행명=='산업은행'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
-    df_query = df_raw.query("점포구분=='지점'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
+    df_query = df_raw.query("점포구분=='지점' and 은행명=='산업은행'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
     df_filter = df_query.filter(["은행명", "점포명", "점포구분", "시도", "시군구", "도로명"])
     df_filter.head()
 
@@ -55,54 +84,40 @@ def main():
     df_filter["시군구"].sort_values()
     df_filter["도로명"].sort_values()
 
-    juso = Jusogokr(JUSO_KEY)
-    naver = Naver(NAVER_KEY, NAVER_SEC)
-    kakao = Kakao(KAKAO_KEY)
-    # kakao.local_keyword("국민은행 양재PB센터")
-
     for idx, ser in tqdm(df_filter.iterrows(), total=df_filter.shape[0]):
         # ser = df_validated.loc[884]
-        br_name = f'{ser["은행명"]} {ser["점포명"]} {ser["점포구분"]}'
+        br_name = f'{ser["은행명"]} {ser["점포명"]}'
         addr = f'{ser["시도"]} {ser["시군구"]} {ser["도로명"]}'
+
         if not addr.strip():
             df_filter.loc[idx, "siNm"] = ""
             df_filter.loc[idx, "sggNm"] = ""
             df_filter.loc[idx, "roadNm"] = ""
             continue
 
-        rows = juso.addr(addr)
-        if not rows:
-            logger.warning(f"* {idx=}, {br_name=}, {addr=}, not found, try kakao")
-            kakao_resp = kakao.local_keyword(br_name)
-            if kakao_resp:
-                kakao_row = kakao_resp[0]
-                addr = kakao_row.get("road_address_name", "")
-                rows = juso.addr(addr)
+        result = query_juso(addr)
+        if not result:
+            logger.warning(f"{idx=}, {br_name=}, {addr=}, not found at jusogokr, try kakao")
+            addr_kakao = query_kakao(br_name)
+            if addr_kakao:
+                result = query_juso(addr_kakao)
 
-        if not rows:
-            logger.warning(f"* {idx=}, {br_name=}, {addr=}, not found, try naver")
-            naver_resp = naver.local(br_name)
-            if naver_resp:
-                naver_row = naver_resp[0]
-                addr = naver_row.get("roadAddress", "")
-                rows = juso.addr(addr)
+        if not result:
+            logger.warning(f"{idx=}, {br_name=}, {addr=}, not found at kakao, try naver")
+            addr_naver = query_naver(br_name)
+            if addr_naver:
+                result = query_juso(addr_naver)
 
-        if not rows:
-            logger.error(f"* {idx=}, {br_name=}, {addr=}, not found, skip this row")
+        if not result:
+            logger.error(f"{idx=}, {br_name=}, {addr=}, not found at naver, skip this row")
             df_filter.loc[idx, "siNm"] = ""
             df_filter.loc[idx, "sggNm"] = ""
             df_filter.loc[idx, "roadNm"] = ""
             continue
 
-        row = rows[0]
-        df_filter.loc[idx, "siNm"] = row.get("siNm", "")
-        df_filter.loc[idx, "sggNm"] = row.get("sggNm", "")
-
-        road_nm = row.get("rn", "")
-        buld_main = row.get("buldMnnm", "")
-        buld_sub = row.get("buldSlno", "")
-        buld_nm = buld_main if buld_sub == "0" else f"{buld_main}-{buld_sub}"
-        df_filter.loc[idx, "roadNm"] = f"{road_nm} {buld_nm}"
+        df_filter.loc[idx, "siNm"] = result.get("sido", "")
+        df_filter.loc[idx, "sggNm"] = result.get("sgg", "")
+        df_filter.loc[idx, "roadNm"] = f'{result.get("road","")} {result.get("buld","")}'
 
     same_sido = df_filter["시도"] == df_filter["siNm"]
     same_sgg = df_filter["시군구"] == df_filter["sggNm"]
@@ -115,6 +130,6 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, filename=OUTPUT_DIR / "err.log")
     init_output_folder()
+    logging.basicConfig(level=logging.INFO, filename=OUTPUT_DIR / "err.log")
     main()
