@@ -26,7 +26,9 @@ attrs==23.1.0
     # via
     #   fiona
     #   jsonschema
+    #   outcome
     #   referencing
+    #   trio
 babel==2.14.0
     # via jupyterlab-server
 beautifulsoup4==4.12.2
@@ -46,6 +48,7 @@ certifi==2023.11.17
     #   fiona
     #   pyproj
     #   requests
+    #   selenium
 cffi==1.16.0
     # via argon2-cffi-bindings
 charset-normalizer==3.3.2
@@ -85,6 +88,8 @@ exceptiongroup==1.2.0
     # via
     #   anyio
     #   ipython
+    #   trio
+    #   trio-websocket
 executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.0
@@ -93,7 +98,7 @@ fiona==1.9.5
     # via geopandas
 folium==0.15.1
     # via -r requirements.in
-fonttools==4.46.0
+fonttools==4.47.0
     # via matplotlib
 fqdn==1.5.1
     # via jsonschema
@@ -103,11 +108,14 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.40
     # via streamlit
+h11==0.14.0
+    # via wsproto
 idna==3.6
     # via
     #   anyio
     #   jsonschema
     #   requests
+    #   trio
 importlib-metadata==6.11.0
     # via streamlit
 ipykernel==6.27.1
@@ -162,7 +170,7 @@ jupyter-client==8.6.0
     #   qtconsole
 jupyter-console==6.6.3
     # via jupyter
-jupyter-core==5.5.0
+jupyter-core==5.5.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -222,7 +230,7 @@ mistune==3.0.2
     # via nbconvert
 nbclient==0.9.0
     # via nbconvert
-nbconvert==7.12.0
+nbconvert==7.13.0
     # via
     #   jupyter
     #   jupyter-server
@@ -258,6 +266,8 @@ numpy==1.26.2
     #   streamlit
 openpyxl==3.1.2
     # via -r requirements.in
+outcome==1.3.0.post0
+    # via trio
 overrides==7.4.0
     # via jupyter-server
 packaging==23.2
@@ -303,7 +313,7 @@ prompt-toolkit==3.0.43
     #   jupyter-console
 protobuf==4.25.1
     # via streamlit
-psutil==5.9.6
+psutil==5.9.7
     # via ipykernel
 ptyprocess==0.7.0
     # via
@@ -311,7 +321,7 @@ ptyprocess==0.7.0
     #   terminado
 pure-eval==0.2.2
     # via stack-data
-pyarrow==14.0.1
+pyarrow==14.0.2
     # via streamlit
 pycparser==2.21
     # via cffi
@@ -332,6 +342,8 @@ pyproj==3.6.1
     # via geopandas
 pyproject-hooks==1.0.0
     # via build
+pysocks==1.7.1
+    # via urllib3
 python-dateutil==2.8.2
     # via
     #   -r requirements.in
@@ -381,7 +393,7 @@ rfc3986-validator==0.1.1
     #   jupyter-events
 rich==13.7.0
     # via streamlit
-rpds-py==0.14.1
+rpds-py==0.15.2
     # via
     #   jsonschema
     #   referencing
@@ -392,6 +404,8 @@ scipy==1.11.4
     #   mapclassify
     #   scikit-learn
 seaborn==0.13.0
+    # via -r requirements.in
+selenium==4.16.0
     # via -r requirements.in
 send2trash==1.8.2
     # via jupyter-server
@@ -407,7 +421,11 @@ six==1.16.0
 smmap==5.0.1
     # via gitdb
 sniffio==1.3.0
-    # via anyio
+    # via
+    #   anyio
+    #   trio
+sortedcontainers==2.4.0
+    # via trio
 soupsieve==2.5
     # via beautifulsoup4
 stack-data==0.6.3
@@ -464,6 +482,12 @@ traitlets==5.14.0
     #   nbconvert
     #   nbformat
     #   qtconsole
+trio==0.23.2
+    # via
+    #   selenium
+    #   trio-websocket
+trio-websocket==0.11.1
+    # via selenium
 types-python-dateutil==2.8.19.14
     # via arrow
 typing-extensions==4.9.0
@@ -479,8 +503,11 @@ tzlocal==5.2
     # via streamlit
 uri-template==1.3.0
     # via jsonschema
-urllib3==2.1.0
-    # via requests
+urllib3[socks]==2.1.0
+    # via
+    #   requests
+    #   selenium
+    #   urllib3
 validators==0.22.0
     # via streamlit
 wcwidth==0.2.12
@@ -497,6 +524,8 @@ wheel==0.42.0
     # via pip-tools
 widgetsnbextension==4.0.9
     # via ipywidgets
+wsproto==1.2.0
+    # via trio-websocket
 xlrd==2.0.1
     # via -r requirements.in
 xmltodict==0.13.0
