@@ -11,7 +11,7 @@ from tqdm import tqdm
 WORK_DIR = pathlib.Path(__file__).parent
 OUTPUT_DIR = WORK_DIR / "output"
 IN_EXCEL = WORK_DIR / "banks.xlsx"
-OUT_EXCEL = OUTPUT_DIR / "banks_output.xlsx"
+STEP_1 = OUTPUT_DIR / "step_1.xlsx"
 
 NAVER_KEY = "4LmEBVOylhQ9Da_Rhryr"
 NAVER_SEC = "WwF0cMKQKS"
@@ -85,13 +85,13 @@ def verify_road_address(idx, addr: str, br_name: str) -> dict:
 
 def main():
     df_raw = load_excel()
-    # df_query = df_raw.query("점포구분=='지점' and 은행명=='산업은행'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
-    df_query = df_raw.query("점포구분=='지점'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
+    df_query = df_raw.query("점포구분=='지점' and 은행명=='산업은행'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
+    # df_query = df_raw.query("점포구분=='지점'").sort_values(["은행명", "점포명"]).reset_index(drop=True)
     df_filter = df_query.filter(["은행명", "점포명", "점포구분", "시도", "시군구", "도로명"])
     df_filter.head()
 
     df_filter["도로명"] = df_filter["도로명"].replace(r"\(.+\)", "", regex=True)  # cleansing
-    df_filter.to_excel(OUT_EXCEL)
+    df_filter.to_excel(STEP_1, index=False)
 
     result = []
     with tqdm(total=df_filter.shape[0]) as pbar:
@@ -125,7 +125,7 @@ def main():
 
     df_result["is_same"] = False
     df_result.loc[same_addr, "is_same"] = True
-    df_result.to_excel(OUT_EXCEL, index=False)
+    df_result.to_excel(STEP_1, index=False)
 
 
 if __name__ == "__main__":
