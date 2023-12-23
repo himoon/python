@@ -124,7 +124,7 @@ ipykernel==6.27.1
     #   jupyter-console
     #   jupyterlab
     #   qtconsole
-ipython==8.18.1
+ipython==8.19.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -206,7 +206,7 @@ jupyterlab-widgets==3.0.9
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-lxml==4.9.3
+lxml==4.9.4
     # via
     #   appscript
     #   python-docx
@@ -230,7 +230,7 @@ mistune==3.0.2
     # via nbconvert
 nbclient==0.9.0
     # via nbconvert
-nbconvert==7.13.0
+nbconvert==7.13.1
     # via
     #   jupyter
     #   jupyter-server
