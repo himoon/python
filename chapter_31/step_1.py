@@ -8,23 +8,12 @@ import pandas as pd
 from datakart import Jusogokr, Kakao, Naver
 from tqdm import tqdm
 
-WORK_DIR = pathlib.Path(__file__).parent
-OUTPUT_DIR = WORK_DIR / "output"
-IN_EXCEL = WORK_DIR / "banks.xlsx"
-STEP_1 = OUTPUT_DIR / "step_1.xlsx"
+import step_0
 
-NAVER_KEY = "4LmEBVOylhQ9Da_Rhryr"
-NAVER_SEC = "WwF0cMKQKS"
-JUSO_KEY = "devU01TX0FVVEgyMDIzMTIxNDAwMzkyNjExNDM1NDg="
-KAKAO_KEY = "2f15ef773b35f21f74877b7ed5122a76"
+IN_EXCEL = step_0.WORK_DIR / "banks.xlsx"
+STEP_1 = step_0.OUTPUT_DIR / "step_1.xlsx"
 
 logger = logging.getLogger(__name__)
-
-
-def init_output_folder():
-    if not OUTPUT_DIR.is_dir():
-        print(f"'{OUTPUT_DIR}' 폴더를 생성합니다.")
-        OUTPUT_DIR.mkdir()
 
 
 def load_excel() -> pd.DataFrame:
@@ -38,17 +27,17 @@ def load_excel() -> pd.DataFrame:
 
 
 def query_kakao(keyword: str) -> str:
-    resp = Kakao(KAKAO_KEY).local_keyword(keyword.strip())
+    resp = Kakao(step_0.KAKAO_KEY).local_keyword(keyword.strip())
     return resp[0].get("road_address_name", "") if resp else ""
 
 
 def query_naver(keyword: str) -> str:
-    resp = Naver(NAVER_KEY, NAVER_SEC).local(keyword.strip())
+    resp = Naver(step_0.NAVER_KEY, step_0.NAVER_SEC).local(keyword.strip())
     return resp[0].get("roadAddress", "") if resp else ""
 
 
 def query_juso(keyword: str) -> dict:
-    resp = Jusogokr(JUSO_KEY).addr(keyword.strip())
+    resp = Jusogokr(step_0.JUSO_KEY).addr(keyword.strip())
     if not resp:
         return {}
 
@@ -129,6 +118,6 @@ def main():
 
 
 if __name__ == "__main__":
-    init_output_folder()
-    logging.basicConfig(level=logging.INFO, filename=OUTPUT_DIR / "err.log")
+    step_0.init_output_folder()
+    logging.basicConfig(level=logging.INFO, filename=step_0.OUTPUT_DIR / "err.log")
     main()

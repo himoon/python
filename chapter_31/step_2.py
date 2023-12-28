@@ -1,25 +1,16 @@
 from __future__ import annotations
 
 import logging
-import pathlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
-import step_1
-from datakart import Jusogokr, Kakao, Naver, Sgis
+from datakart import Sgis
 from tqdm import tqdm
 
-WORK_DIR = pathlib.Path(__file__).parent
-OUTPUT_DIR = WORK_DIR / "output"
-IN_EXCEL = WORK_DIR / "banks.xlsx"
-STEP_2 = OUTPUT_DIR / "step_2.xlsx"
+import step_0
+import step_1
 
-NAVER_KEY = "4LmEBVOylhQ9Da_Rhryr"
-NAVER_SEC = "WwF0cMKQKS"
-JUSO_KEY = "devU01TX0FVVEgyMDIzMTIxNDAwMzkyNjExNDM1NDg="
-KAKAO_KEY = "2f15ef773b35f21f74877b7ed5122a76"
-SGIS_API_KEY = "c45c510fe7854d5aae90"
-SGIS_API_SEC = "fde5af5e4362466b91fe"
+STEP_2 = step_0.OUTPUT_DIR / "step_2.xlsx"
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +23,7 @@ def load_excel() -> pd.DataFrame:
 
 def query_x_y(idx, br_name: str, addr: str) -> dict:
     try:
-        resp = Sgis(SGIS_API_KEY, SGIS_API_SEC).geocode_wgs84(addr)
+        resp = Sgis(step_0.SGIS_API_KEY, step_0.SGIS_API_SEC).geocode_wgs84(addr)
         if resp:
             return dict(idx=idx, br_name=br_name, **resp[0])
         return dict(idx=idx, br_name=br_name)
@@ -68,6 +59,6 @@ def main():
 
 
 if __name__ == "__main__":
-    step_1.init_output_folder()
-    logging.basicConfig(level=logging.INFO, filename=OUTPUT_DIR / "err.log")
+    step_0.init_output_folder()
+    logging.basicConfig(level=logging.INFO, filename=step_0.OUTPUT_DIR / "err.log")
     main()
